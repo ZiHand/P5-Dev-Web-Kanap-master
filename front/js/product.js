@@ -1,101 +1,96 @@
+// 1 - Retreive the id from url call
+// 2 - Ask API to get the product, according to the id
+// 3 - Find the corresponding document item in the <article> chidldrens
+// 4 - Add the corresponding Key into each children item html 
+
 // ==========================================================
-//                      Class Product
-// ==========================================================
-// Arguments:
-//      - String
-//      - String
-//      - String
-//      - Array
-//      - Float
-//      - String
-//      - String
-//
-// Return a Product Object
-// ==========================================================
-export default class productClass 
+const apiUrlBase = "http://localhost:3000/api/products/";
+let _ID = new URL(window.location.href).searchParams.get('id');
+
+if (_ID != null)
 {
-  constructor(_id, name, description, colors, price, imageUrl, altTxt) 
-  {
-    this._id          = _id;
-    this.name         = name;
-    this.description  = description;
-    this.colors       = colors;
-    this.price        = price;
-    this.imageUrl     = imageUrl;
-    this.altTxt       = altTxt;
-  }
+  console.log(_ID);
+}
 
-  isSameAs(obj)
-  {
-    return (this._id === obj._id && this.colors === obj.colors);
-  }
+let productObj = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
 
-  isDifferentAs(obj)
-  {
-    return !this.isSameAs(obj);
-  }
+// ==========================================================
+function apiAskForProduct(url) 
+{
+  fetch(url)
+    .then(function(res) 
+    {
+      if (res.ok) 
+      {
+        return res.json();
+      }
+    })
+    .then(function(data) 
+    {
+      // Fill datas
+      productObj.colors       = data.colors;
+      productObj._id          = data._id;
+      productObj.name         = data.name;
+      productObj.price        = data.price;
+      productObj.imageUrl     = data.imageUrl;
+      productObj.description  = data.description;
+      productObj.altTxt       = data.altTxt;
 
-  // ==========================================================
-  // Static 
-  // ==========================================================
-  static function factoryCreateSafeProduct(_id, name, description, colors, price, imageUrl, altTxt)
-  {
-    const obj = new product(_id, name, description, colors, price, imageUrl, altTxt);
+      return productObj;
 
-    Object.defineProperty(obj, "_id",          {writable: false, enumerable: true, configurable: true});
-    Object.defineProperty(obj, "name",         {writable: false, enumerable: true, configurable: true});
-    Object.defineProperty(obj, "description",  {writable: false, enumerable: true, configurable: true});
-    Object.defineProperty(obj, "colors",       {writable: false, enumerable: true, configurable: true});
-    Object.defineProperty(obj, "price",        {writable: false, enumerable: true, configurable: true});
-    Object.defineProperty(obj, "imageUrl",     {writable: false, enumerable: true, configurable: true});
-    Object.defineProperty(obj, "altTxt",       {writable: false, enumerable: true, configurable: true});
-
-    return obj;
-  }
+    })
+    .then(function(object)
+    {
+      WriteToDOM(object);
+    })
+    .catch(function(err) 
+    {
+      // Une erreur est survenue
+      console.log("apiAskForProduct throw Error");
+    }); 
 }
 
 // ==========================================================
-
+// Write image to the DOM
 // ==========================================================
-//  Safe Product Factory function
-// ==========================================================
-// Arguments:
-//      - String    (VLUID)
-//      - String    (Name)
-//      - String    (Decription)
-//      - Array     (Colors)
-//      - Float     (Price)
-//      - String    (Image url)
-//      - String    (Image alternative text)
-//
-// Return a Safe Product Object
-// ==========================================================
-
-
-// ==========================================================
-//  Product test function
-// ==========================================================
-function testObjectFunc()
+function WriteToDOM(obj)
 {
-  console.log("*****************************************");
-  console.log(" Product class test functions start");
-  console.log("*****************************************");
+  if (!obj)
+  {
+    throw console.error();
+  }
 
-  const test = product.factoryCreateSafeProduct("1234", "canap1", "un pouf", ["#ffffff"], 650.43, "eee", "ffff");
-  console.log(test);
-  console.log("");
-  console.log("isSameAs       = " + test.isSameAs(factoryCreateSafeProduct("2222", "canap1", "un pouf", [], 650.43, "eee", "ffff")));
-  console.log("isDifferentAs  = " + test.isDifferentAs(factoryCreateSafeProduct("2222", "canap1", "un pouf", [], 650.43, "eee", "ffff")));
+  // find children class "item__img"
+  document.getElementsByClassName('item__img')[0].innerHTML = `<img src="${obj.imageUrl}" alt="${obj.altTxt}">`;
+  document.getElementById('title').textContent = obj.name;
+  document.getElementById('price').textContent = obj.price;
+  document.getElementById('description').textContent = obj.description;
 
-  console.log("*****************************************");
-  console.log(" Product class test functions end");
-  console.log("*****************************************");
-  console.log("");
-  
+  let colors = document.getElementById('colors');
+
+  console.log(obj.colors);
+
+  obj.colors.forEach(element => {
+
+    console.log(element);
+    colors.innerHTML = `<option value="${element}">${element}</option>`;
+    
+  });
+
+}
+// ==========================================================
+// Write product into the DOM
+// ==========================================================
+async function writeProductToDOM()
+{
+    console.log(apiUrlBase + _ID);
+    apiAskForProduct(apiUrlBase + _ID);   
 }
 
 // ==========================================================
-//  Running
-// ==========================================================
-testObjectFunc();
+writeProductToDOM();
+
+
+
+
 
