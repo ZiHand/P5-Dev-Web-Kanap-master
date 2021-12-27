@@ -1,19 +1,85 @@
-// 1 - Retreive the id from url call
-// 2 - Ask API to get the product, according to the id
-// 3 - Find the corresponding document item in the <article> chidldrens
-// 4 - Add the corresponding Key into each children item html 
-
 // ==========================================================
 const apiUrlBase = "http://localhost:3000/api/products/";
 let _ID = new URL(window.location.href).searchParams.get('id');
 
-if (_ID != null)
+let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
+
+let OrderProduct  = {_id: "", color: "", count: 1};
+
+let orderStorage = localStorage;
+orderStorage.clear();
+
+// **********************************************************
+//                      Events listeners
+// **********************************************************
+const orderBtn = document.getElementById('addToCart');
+orderBtn.addEventListener('click', onOrderClick);
+
+const quantityCtrl = document.getElementById('quantity');
+quantityCtrl.defaultValue = "1";
+quantityCtrl.addEventListener('change', onQuantityChange);
+
+const colorOption = document.getElementById('colors');
+colorOption.addEventListener('change', onColorChange);
+
+// **********************************************************
+// ==========================================================
+//
+//                          Helpers
+//
+// ==========================================================
+// **********************************************************
+
+// ==========================================================
+// isOrderSameOf
+// ==========================================================
+function isOrderSameOf(_productOrder, _OtherProductOrder)
 {
-  console.log(_ID);
+  if (!_productOrder || !_OtherProductOrder) return false;
+
+
+}
+// ==========================================================
+// isCountValid
+// ==========================================================
+function isCountValid()
+{
+  if (OrderProduct && OrderProduct.count >= 1) return true;
+
+  return false;
 }
 
-let productObj = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
+// ==========================================================
+// isColorValid
+// ==========================================================
+function isColorValid()
+{
+  if (OrderProduct && OrderProduct.color != "") return true;
 
+  return false;
+}
+
+// ==========================================================
+// isOrderProductValid
+// ==========================================================
+function isOrderProductValid() 
+{
+  if (isColorValid() && isCountValid() && OrderProduct._id != "") return true;
+    
+  return false;
+}
+
+// **********************************************************
+//                        API Calls
+// **********************************************************
+
+// ==========================================================
+// apiAskForProduct
+// 
+// Args: 
+//    - String (URL)
+//
+// return Promise.
 // ==========================================================
 function apiAskForProduct(url) 
 {
@@ -27,6 +93,7 @@ function apiAskForProduct(url)
     })
     .then(function(data) 
     {
+      
       // Fill datas
       productObj.colors       = data.colors;
       productObj._id          = data._id;
@@ -51,7 +118,7 @@ function apiAskForProduct(url)
 }
 
 // ==========================================================
-// Write image to the DOM
+// Write to the DOM
 // ==========================================================
 function WriteToDOM(obj)
 {
@@ -60,21 +127,17 @@ function WriteToDOM(obj)
     throw console.error();
   }
 
-  // find children class "item__img"
   document.getElementsByClassName('item__img')[0].innerHTML = `<img src="${obj.imageUrl}" alt="${obj.altTxt}">`;
   document.getElementById('title').textContent = obj.name;
   document.getElementById('price').textContent = obj.price;
   document.getElementById('description').textContent = obj.description;
 
-  let colors = document.getElementById('colors');
+  obj.colors.forEach(color => {
+    var element = document.createElement("option");
+    element.setAttribute("value", color);
+    element.innerText = color;
 
-  console.log(obj.colors);
-
-  obj.colors.forEach(element => {
-
-    console.log(element);
-    colors.innerHTML = `<option value="${element}">${element}</option>`;
-    
+    colorOption.appendChild(element);
   });
 
 }
@@ -89,6 +152,107 @@ async function writeProductToDOM()
 
 // ==========================================================
 writeProductToDOM();
+
+// **********************************************************
+// ==========================================================
+//
+//                        Storage
+//
+// ==========================================================
+// **********************************************************
+
+// ==========================================================
+// addToStorage
+//
+// return value: bool
+// ==========================================================
+function addToStorage()
+{
+    // Check if current orderProduct fit another one. 
+    // If so inc it.
+    // Else, add new one.
+
+    console.log("**** AddToStorage check Start ****");
+    console.log("Order Count : " + orderStorage.length);
+
+    if (orderStorage.length > 0)
+    {
+      for (var i = 0; i < orderStorage.length; i++)
+      {
+        // Retrieve the JSON string
+        var jsonString = localStorage.getItem(orderStorage.length - 1);
+        var retrievedObject = JSON.parse(jsonString);
+        console.log(retrievedObject);
+      }
+    }
+    else
+    {
+      console.log("Wrinting to lacal storage , product id : " + OrderProduct._id);
+      orderStorage.setItem(orderStorage.length, JSON.stringify(OrderProduct));
+      console.log("Local storage count : " + orderStorage.length);
+    }
+
+    console.log("**** AddToStorage check End ****");
+}
+
+// **********************************************************
+//                        Events
+// **********************************************************
+
+// ==========================================================
+// onOrderClick
+// ==========================================================
+function onOrderClick(event) 
+{
+    event.preventDefault();
+
+    OrderProduct._id = productObj._id;
+
+    // Check validity
+    if (isOrderProductValid())
+    {
+        // Write to local storage.
+        addToStorage();
+        return;
+    }
+
+    alert("Une erreur est survenue, merci de verifier vos choix.");
+}
+
+// ==========================================================
+// onQuantityChange
+// ==========================================================
+function onQuantityChange(event) 
+{
+    event.preventDefault();
+    console.log(event.target.value);
+
+    // Check validity
+    if (OrderProduct && event.target.value >= 1)
+    {
+      OrderProduct.count = event.target.value;
+      return;
+    }
+
+    alert("Meci de saisir une valeur superireur à 0 et inférieur à 100.");
+}
+
+// ==========================================================
+// onColorChange
+// ==========================================================
+function onColorChange(event) 
+{
+    event.preventDefault();
+
+    // Check validity
+    if (OrderProduct && event.target.value != "")
+    {
+      OrderProduct.color = event.target.value;
+      return;
+    }
+
+    alert("Merci de choisir une couleur valide.");
+}
 
 
 
