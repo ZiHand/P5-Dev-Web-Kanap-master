@@ -37,7 +37,9 @@ function isOrderSameOf(_productOrder, _OtherProductOrder)
 {
   if (!_productOrder || !_OtherProductOrder) return false;
 
+  if (_productOrder._id === _OtherProductOrder._id && _productOrder.color === _OtherProductOrder.color) return true;
 
+  return false;
 }
 // ==========================================================
 // isCountValid
@@ -172,26 +174,34 @@ function addToStorage()
     // If so inc it.
     // Else, add new one.
 
+    console.log("");
     console.log("**** AddToStorage check Start ****");
-    console.log("Order Count : " + orderStorage.length);
+    let bFound = false;
 
-    if (orderStorage.length > 0)
+    for (var i = 0; i < orderStorage.length; i++)
     {
-      for (var i = 0; i < orderStorage.length; i++)
+      // Retrieve the JSON string
+      var jsonString = localStorage.getItem(i);
+      var retrievedObject = JSON.parse(jsonString);
+
+      if (isOrderSameOf(OrderProduct, retrievedObject))
       {
-        // Retrieve the JSON string
-        var jsonString = localStorage.getItem(orderStorage.length - 1);
-        var retrievedObject = JSON.parse(jsonString);
-        console.log(retrievedObject);
+        // Inc retrievedObject
+        retrievedObject.count++;
+        bFound = true;
+        console.log("Updating to local storage : " + JSON.stringify(retrievedObject));
+        orderStorage.setItem(i, JSON.stringify(retrievedObject));
+        break;
       }
     }
-    else
+
+    if (!bFound)
     {
-      console.log("Wrinting to lacal storage , product id : " + OrderProduct._id);
-      orderStorage.setItem(orderStorage.length, JSON.stringify(OrderProduct));
-      console.log("Local storage count : " + orderStorage.length);
+      console.log("Wrinting to local storage :" + JSON.stringify(OrderProduct));
+      orderStorage.setItem(orderStorage.length - 1, JSON.stringify(OrderProduct));
     }
 
+    console.log("Local storage count : " + orderStorage.length);
     console.log("**** AddToStorage check End ****");
 }
 
