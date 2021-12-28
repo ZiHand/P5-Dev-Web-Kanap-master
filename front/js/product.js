@@ -7,7 +7,7 @@ let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", desc
 let OrderProduct  = {_id: "", color: "", count: 1};
 
 let orderStorage = localStorage;
-orderStorage.clear();
+//orderStorage.clear();
 
 // **********************************************************
 //                      Events listeners
@@ -180,9 +180,8 @@ function addToStorage()
 
     for (var i = 0; i < orderStorage.length; i++)
     {
-      // Retrieve the JSON string
-      var jsonString = localStorage.getItem(i);
-      var retrievedObject = JSON.parse(jsonString);
+      // Retrieve the orderObject
+      var retrievedObject = JSON.parse(localStorage.getItem(i));
 
       if (isOrderSameOf(OrderProduct, retrievedObject))
       {
