@@ -4,10 +4,10 @@ let _ID = new URL(window.location.href).searchParams.get('id');
 
 let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
 
-let OrderProduct  = {_id: "", color: "", count: 1};
+let OrderProduct  = {_id: "", color: "", count: 1, price: 0};
 
 let orderStorage = localStorage;
-//orderStorage.clear();
+orderStorage.clear();
 
 // **********************************************************
 //                      Events listeners
@@ -37,10 +37,21 @@ function isOrderSameOf(_productOrder, _OtherProductOrder)
 {
   if (!_productOrder || !_OtherProductOrder) return false;
 
-  if (_productOrder._id === _OtherProductOrder._id && _productOrder.color === _OtherProductOrder.color) return true;
+  if (_productOrder._id === _OtherProductOrder._id && _productOrder.color === _OtherProductOrder.color && _productOrder.price === _OtherProductOrder.price) return true;
 
   return false;
 }
+
+// ==========================================================
+// isPriceValid
+// ==========================================================
+function isPriceValid()
+{
+  if (OrderProduct && OrderProduct.price >= 1) return true;
+
+  return false;
+}
+
 // ==========================================================
 // isCountValid
 // ==========================================================
@@ -66,7 +77,7 @@ function isColorValid()
 // ==========================================================
 function isOrderProductValid() 
 {
-  if (isColorValid() && isCountValid() && OrderProduct._id != "") return true;
+  if (isColorValid() && isCountValid() && OrderProduct._id != "" && isPriceValid()) return true;
     
   return false;
 }
@@ -181,7 +192,7 @@ function addToStorage()
     for (var i = 0; i < orderStorage.length; i++)
     {
       // Retrieve the orderObject
-      var retrievedObject = JSON.parse(localStorage.getItem(i));
+      var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
 
       if (isOrderSameOf(OrderProduct, retrievedObject))
       {
@@ -189,7 +200,7 @@ function addToStorage()
         retrievedObject.count++;
         bFound = true;
         console.log("Updating to local storage : " + JSON.stringify(retrievedObject));
-        orderStorage.setItem(i, JSON.stringify(retrievedObject));
+        orderStorage.setItem(i.toString(), JSON.stringify(retrievedObject));
         break;
       }
     }
@@ -197,7 +208,7 @@ function addToStorage()
     if (!bFound)
     {
       console.log("Wrinting to local storage :" + JSON.stringify(OrderProduct));
-      orderStorage.setItem(orderStorage.length - 1, JSON.stringify(OrderProduct));
+      orderStorage.setItem((orderStorage.length), JSON.stringify(OrderProduct));
     }
 
     console.log("Local storage count : " + orderStorage.length);
@@ -215,7 +226,8 @@ function onOrderClick(event)
 {
     event.preventDefault();
 
-    OrderProduct._id = productObj._id;
+    OrderProduct._id    = productObj._id;
+    OrderProduct.price  = productObj.price;
 
     // Check validity
     if (isOrderProductValid())
