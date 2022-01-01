@@ -55,6 +55,9 @@ function apiAskForProduct(url, order)
 
       console.log("Index : " + itemindex);
       registerDeleteEvents(delete_item.item(itemindex - 1));
+
+      const itemQuantity = document.getElementsByClassName('itemQuantity');
+      registerQuantityEvents(itemQuantity.item(itemindex - 1));
     })
     .catch(function(err) 
     {
@@ -139,61 +142,116 @@ function registerDeleteEvents(delete_item)
 {
   delete_item.addEventListener('click', onDeleteClick);
 }
+
+// **********************************************************
+function registerQuantityEvents(item)
+{
+  item.addEventListener('change', onQuantityChange);
+}
+
 // ==========================================================
 // onDeleteClick
 // ==========================================================
 function onDeleteClick(event) 
 {
     console.log("onDeleteClick");
-    console.log(event);
-
-    
+    event.preventDefault();
 
     if (event.currentTarget === this)
     {
-      console.log(this.className)           // logs the className of my_element
-
       let cart__item__content__settings__delete = event.currentTarget.parentElement;
-
-      console.log(cart__item__content__settings__delete);
 
       if (cart__item__content__settings__delete)
       {
           let cart__item__content__settings = cart__item__content__settings__delete.parentElement;
-          console.log(cart__item__content__settings);
 
           if (cart__item__content__settings)
           {
             let cart__item__content = cart__item__content__settings.parentElement;
-            console.log(cart__item__content);
 
             if (cart__item__content)
             {
               let article = cart__item__content.parentElement;
-              console.log(article);
 
               if (article)
               {
                   // Find id
                   let _id = article.getAttribute('data-id');
-                  console.log(_id);
+
                   // remove from storage
                   for (var i = 0; i <= orderStorage.length - 1; i++)
                   {
                     var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
 
-                    console.log(retrievedObject._id);
-
                     if (retrievedObject._id === _id)
                     {
-                      console.log("Deleting from storage");
-                      localStorage.removeItem(i.toString());
+                      orderStorage.removeItem(i.toString());
                       break;
                     }
                   }
                   
                   // reload script
                   location.reload();
+              }
+            }
+          }
+      }
+    }
+}
+
+// ==========================================================
+// onDeleteClick
+// ==========================================================
+function onQuantityChange(event) 
+{
+    console.log("onQuantityChange");
+    event.preventDefault();
+
+    if (event.currentTarget === this)
+    {
+      let cart__item__content__settings__quantity = event.currentTarget.parentElement;
+
+      if (cart__item__content__settings__quantity)
+      {
+          let cart__item__content__settings = cart__item__content__settings__quantity.parentElement;
+
+          if (cart__item__content__settings)
+          {
+            let cart__item__content = cart__item__content__settings.parentElement;
+
+            if (cart__item__content)
+            {
+              let article = cart__item__content.parentElement;
+
+              if (article)
+              {
+                  // Find id
+                  let _id = article.getAttribute('data-id');
+
+                  // remove from storage
+                  for (var i = 0; i <= orderStorage.length - 1; i++)
+                  {
+                    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+
+                    if (retrievedObject._id === _id)
+                    {
+                      if (event.target.value >= 1)
+                      {
+                        console.log("Target value count : " + event.target.value);
+                        retrievedObject.count = event.target.value;
+                        orderStorage.setItem(i.toString(), JSON.stringify(retrievedObject));
+                        break;
+                      }
+                      else
+                      {
+                        orderStorage.removeItem(i.toString());
+                        break;
+                      }
+                    }
+                  }
+                  
+                  // reload script
+                  //location.reload();
               }
             }
           }
