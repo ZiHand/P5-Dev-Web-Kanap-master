@@ -1,6 +1,6 @@
 // ==========================================================
 const apiUrlBase        = "http://localhost:3000/api/products/";
-let OrderProduct        = {_id: "", color: "", count: 1};
+let OrderProduct        = {_id: "", color: "", count: 1, price: 0};
 let orderStorage        = localStorage;
 let orderArray          = [];
 let article_Count       = 0;
@@ -58,6 +58,8 @@ function apiAskForProduct(url, order)
 
       const itemQuantity = document.getElementsByClassName('itemQuantity');
       registerQuantityEvents(itemQuantity.item(itemindex - 1));
+
+      updateCartPrice();
     })
     .catch(function(err) 
     {
@@ -131,8 +133,38 @@ function writeOrderTo_article_items(order, product)
   console.log("deleteItem count : " + delete_item.length);
 
   return delete_item.length;
+}
 
-  let cart__price = document.getElementById('cart__price');
+// **********************************************************
+// updateCartPrice
+// **********************************************************
+function updateCartPrice()
+{
+  let totalQuantity = document.getElementById('totalQuantity');
+  let totalPrice    = document.getElementById('totalPrice');
+
+  let articleCount  = 0;
+  let price         = 0;
+
+  for (var i = 0; i <= orderStorage.length - 1; i++)
+  {
+    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+    articleCount += Number(retrievedObject.count);
+
+    price += (Number(retrievedObject.price) * Number(retrievedObject.count));
+  }
+
+  console.log(price);
+
+  if (totalQuantity)
+  {
+    totalQuantity.textContent = articleCount.toString();
+  }
+
+  if (totalPrice)
+  {
+    totalPrice.textContent = price.toString();
+  }
 }
 
 // **********************************************************
@@ -191,6 +223,7 @@ function onDeleteClick(event)
                   }
                   
                   // reload script
+                  updateCartPrice();
                   location.reload();
               }
             }
@@ -200,7 +233,7 @@ function onDeleteClick(event)
 }
 
 // ==========================================================
-// onDeleteClick
+// onQuantityChange
 // ==========================================================
 function onQuantityChange(event) 
 {
@@ -250,6 +283,8 @@ function onQuantityChange(event)
                     }
                   }
                   
+                 
+                  updateCartPrice();
                   // reload script
                   //location.reload();
               }

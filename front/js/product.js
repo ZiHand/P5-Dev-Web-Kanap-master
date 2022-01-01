@@ -2,9 +2,9 @@
 const apiUrlBase = "http://localhost:3000/api/products/";
 let _ID = new URL(window.location.href).searchParams.get('id');
 
-let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
+let productObj   = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
 
-let OrderProduct  = {_id: "", color: "", count: 1};
+let OrderProduct = {_id: "", color: "", count: 1, price: 0};
 
 let orderStorage = localStorage;
 //orderStorage.clear();
@@ -217,6 +217,7 @@ function onOrderClick(event)
     event.preventDefault();
 
     OrderProduct._id    = productObj._id;
+    OrderProduct.price  = productObj.price;
 
     // Check validity
     if (isOrderProductValid())
