@@ -4,7 +4,7 @@ let _ID = new URL(window.location.href).searchParams.get('id');
 
 let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
 
-let OrderProduct  = {_id: "", color: "", count: 1, price: 0};
+let OrderProduct  = {_id: "", color: "", count: 1};
 
 let orderStorage = localStorage;
 orderStorage.clear();
@@ -37,17 +37,7 @@ function isOrderSameOf(_productOrder, _OtherProductOrder)
 {
   if (!_productOrder || !_OtherProductOrder) return false;
 
-  if (_productOrder._id === _OtherProductOrder._id && _productOrder.color === _OtherProductOrder.color && _productOrder.price === _OtherProductOrder.price) return true;
-
-  return false;
-}
-
-// ==========================================================
-// isPriceValid
-// ==========================================================
-function isPriceValid()
-{
-  if (OrderProduct && OrderProduct.price >= 1) return true;
+  if (_productOrder._id === _OtherProductOrder._id && _productOrder.color === _OtherProductOrder.color) return true;
 
   return false;
 }
@@ -77,7 +67,7 @@ function isColorValid()
 // ==========================================================
 function isOrderProductValid() 
 {
-  if (isColorValid() && isCountValid() && OrderProduct._id != "" && isPriceValid()) return true;
+  if (isColorValid() && isCountValid() && OrderProduct._id != "") return true;
     
   return false;
 }
@@ -227,13 +217,13 @@ function onOrderClick(event)
     event.preventDefault();
 
     OrderProduct._id    = productObj._id;
-    OrderProduct.price  = productObj.price;
 
     // Check validity
     if (isOrderProductValid())
     {
         // Write to local storage.
         addToStorage();
+        window.location.replace("../html/cart.html");
         return;
     }
 
