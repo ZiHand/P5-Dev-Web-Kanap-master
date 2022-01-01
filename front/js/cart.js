@@ -1,74 +1,12 @@
 // ==========================================================
 const apiUrlBase        = "http://localhost:3000/api/products/";
 let OrderProduct        = {_id: "", color: "", count: 1};
-
 let orderStorage        = localStorage;
-let productObjArray     = [];
 let orderArray          = [];
+let article_Count       = 0;
+let totalPrice          = 0;
 
 // ==========================================================
-
-// ==========================================================
-//  readProductsFromJSON
-// ==========================================================
-// Arguments:
-//      - JSON     (json)
-//
-// Return bool
-// ==========================================================
-function readProductsFromJSON(json)
-{
-  for (var obj of json) 
-  {
-    const _productObj =  {colors: [], _id: "", name: "", price: 0, imageUrl: "", description: "", altTxt: "", count: 0};
-
-      // Check know properties
-      for (const key in obj)
-      {
-          if(_productObj.hasOwnProperty(key))
-          {
-            _productObj[key] = obj[key]; 
-          }
-      }
-
-      // Add To Array.
-      productObjArray.push(_productObj);
-  }
-
-  return productObjArray.length > 0;
-}
-
-// ==========================================================
-//  apiAskForProducts
-// ==========================================================
-// Arguments:
-//      - String    (Url)
-//
-// Return promise
-// ==========================================================
-function apiAskForProducts(url) 
-{
-  fetch(url)
-    .then(function(res) 
-    {
-      if (res.ok) 
-      {
-        return res.json();
-      }
-    })
-    .then(function(json) 
-    {
-      readProductsFromJSON(json);
-
-      //ASK Pascal for array
-      console.log(productObjArray);
-    })
-    .catch(function(err) 
-    {
-      // Une erreur est survenue
-      console.log(err);
-    });   
-}
 
 // ==========================================================
 // apiAskForProduct
@@ -109,7 +47,14 @@ function apiAskForProduct(url, order)
     })
     .then(function(product) 
     {
-      writeOrderTo_cart_items(order, product);
+      return writeOrderTo_article_items(order, product);
+    })
+    .then(function(itemindex) 
+    {
+      const delete_item = document.getElementsByClassName('deleteItem');
+
+      console.log("Index : " + itemindex);
+      registerDeleteEvents(delete_item.item(itemindex - 1));
     })
     .catch(function(err) 
     {
@@ -138,20 +83,23 @@ function loadFromStorage()
 }
 
 // ==========================================================
-//  function writeOrderTo_cart_items
+//  function writeOrderTo_article_items
 // ==========================================================
 // Arguments:
 //      - Object    (order)
+//      - Object    (product)
 //
-// Return a string that represent a order as html
+// Return void
 // ==========================================================
-function writeOrderTo_cart_items(order, product)
+function writeOrderTo_article_items(order, product)
 {
+    article_Count++;
+
     let cart__items = document.getElementById('cart__items');
 
     console.log("writeOrderTo_cart_items");
 
-    let write = `<article class="cart__item" data-id="${order._id}" data-color="${order.color}">
+    let article_write = `<article class="cart__item" data-id="${order._id}" data-color="${order.color}">
     <div class="cart__item__img">
       <img src="${product.imageUrl}" alt="${product.altTxt}">
     </div>
@@ -173,19 +121,96 @@ function writeOrderTo_cart_items(order, product)
     </div>
   </article>`
 
-  cart__items.insertAdjacentHTML('beforeend', write);
+  cart__items.insertAdjacentHTML('beforeend', article_write);
+
+  const delete_item = document.getElementsByClassName('deleteItem');
+
+  console.log("deleteItem count : " + delete_item.length);
+
+  return delete_item.length;
+
+  let cart__price = document.getElementById('cart__price');
 }
 
+// **********************************************************
+//                        Events
+// **********************************************************
+function registerDeleteEvents(delete_item)
+{
+  delete_item.addEventListener('click', onDeleteClick);
+}
+// ==========================================================
+// onDeleteClick
+// ==========================================================
+function onDeleteClick(event) 
+{
+    console.log("onDeleteClick");
+    console.log(event);
+
+    
+
+    if (event.currentTarget === this)
+    {
+      console.log(this.className)           // logs the className of my_element
+
+      let cart__item__content__settings__delete = event.currentTarget.parentElement;
+
+      console.log(cart__item__content__settings__delete);
+
+      if (cart__item__content__settings__delete)
+      {
+          let cart__item__content__settings = cart__item__content__settings__delete.parentElement;
+          console.log(cart__item__content__settings);
+
+          if (cart__item__content__settings)
+          {
+            let cart__item__content = cart__item__content__settings.parentElement;
+            console.log(cart__item__content);
+
+            if (cart__item__content)
+            {
+              let article = cart__item__content.parentElement;
+              console.log(article);
+
+              if (article)
+              {
+                  // Find id
+                  let _id = article.getAttribute('data-id');
+                  console.log(_id);
+                  // remove from storage
+                  for (var i = 0; i <= orderStorage.length - 1; i++)
+                  {
+                    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+
+                    console.log(retrievedObject._id);
+
+                    if (retrievedObject._id === _id)
+                    {
+                      console.log("Deleting from storage");
+                      localStorage.removeItem(i.toString());
+                      break;
+                    }
+                  }
+                  
+                  // reload script
+                  location.reload();
+              }
+            }
+          }
+      }
+    }
+}
 
 // ==========================================================
-// Mai run
+// Main run
 // ==========================================================
 function mainRun()
 {
   loadFromStorage();
   console.log("Loaded Orders : " + JSON.stringify(orderArray, null, " "));
 
-  orderArray.forEach((item, index) => {
+  orderArray.forEach((item, index) => 
+  {
     console.log("Order " + index + ": " + JSON.stringify(orderArray[index], null, " "));
 
     // Retreive product

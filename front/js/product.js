@@ -7,7 +7,7 @@ let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", desc
 let OrderProduct  = {_id: "", color: "", count: 1};
 
 let orderStorage = localStorage;
-orderStorage.clear();
+//orderStorage.clear();
 
 // **********************************************************
 //                      Events listeners
