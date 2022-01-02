@@ -5,6 +5,8 @@ let orderStorage        = localStorage;
 let orderArray          = [];
 let article_Count       = 0;
 let totalPrice          = 0;
+let userContact         = {firstName: "", lastName:"", address:"", city:"", email:""};
+ 
 
 // ==========================================================
 
@@ -182,7 +184,7 @@ formLastName.addEventListener('change', onLastNameChange);
 formAddress.addEventListener('change', onAddressChange);
 formCity.addEventListener('change', onCityChange);
 formEmail.addEventListener('change', onEmailChange);
-orderBtn.addEventListener('click', onOrderClick);
+orderBtn.addEventListener('submit', onOrderClick);
 
 
 // ==========================================================
@@ -330,7 +332,7 @@ function onNameChange(event)
 }
 
 // ==========================================================
-// onNameChange
+// onLastNameChange
 // ==========================================================
 function onLastNameChange(event)
 {
@@ -406,11 +408,34 @@ function onEmailChange(event)
 }
 
 // ==========================================================
+// checkForm
+// ==========================================================
+function checkForm()
+{
+  if (validateName(formName) &&
+      validateName(formLastName) &&
+      validateAdress(formAddress) &&
+      validateName(formCity) &&
+      validateEmail(validateEmail))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// ==========================================================
 // onOrderClick
 // ==========================================================
 function onOrderClick(event)
 {
-  
+  event.preventDefault();
+  preventDefault();
+
+  if (checkForm())
+  {
+    submitForm();
+  }
 }
 
 // ==========================================================
@@ -419,7 +444,7 @@ function onOrderClick(event)
 function validateName(element) 
 {
   // https://stackoverflow.com/questions/20690499/concrete-javascript-regex-for-accented-characters-diacritics
-  
+
   var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{2,30}$/;
 
   return regex.test(element.value);
@@ -450,6 +475,65 @@ function validateEmail(element)
 {
   var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   return regex.test(element.value);
+}
+
+// ==========================================================
+// submitForm
+// ==========================================================
+async function submitForm()
+{
+  userContact.firstName = formName.value;
+  userContact.lastName  = formLastName.value;
+  userContact.address   = formAddress.value;
+  userContact.city      = formCity.value;
+  userContact.email     = formEmail.value;
+
+  let productArray = [];
+
+  orderArray.forEach((item, index) => 
+  {
+      productArray.push(item._id);
+  })
+
+  let jsonBody = {contact: userContact, products: productArray};
+
+  fetch(apiUrlBase + "order", {
+	            method: "POST",
+	            headers: { 
+                'Accept': 'application/json', 
+                'Content-Type': 'application/json' 
+              },
+	            body: JSON.stringify(jsonBody)
+            })
+    .then(function(res) 
+    {
+      if (res.ok) 
+      {
+        return res.json();
+      }
+    })
+    .then(function(value) 
+    {
+      console.log(value);
+      
+      var currentLocation = window.location;
+      var currentUrl = currentLocation.href;
+      let indexOf = currentUrl.lastIndexOf("/");
+
+     
+      var orderUrl = currentUrl.substring(0, indexOf + 1);
+      orderUrl += "confirmation.html?Id=" + value.orderId;
+      console.log("Confirmation url : " + orderUrl);
+
+      console.log(orderUrl);
+
+      //document.location = orderUrl;
+    })
+    .catch(function(err) 
+    {
+      // Une erreur est survenue
+      console.log("submitForm throw : " + err);
+    });
 }
 
 // ==========================================================
