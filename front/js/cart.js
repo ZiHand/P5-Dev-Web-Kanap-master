@@ -168,8 +168,24 @@ function updateCartPrice()
 }
 
 // **********************************************************
-//                        Events
+//                      Events listeners
 // **********************************************************
+const formName      = document.getElementById('firstName');
+const formLastName  = document.getElementById('lastName');
+const formAddress   = document.getElementById('address');
+const formCity      = document.getElementById('city');
+const formEmail     = document.getElementById('email');
+const orderBtn      = document.getElementById('order');
+
+formName.addEventListener('change', onNameChange);
+formLastName.addEventListener('change', onLastNameChange);
+formAddress.addEventListener('change', onAddressChange);
+formCity.addEventListener('change', onCityChange);
+formEmail.addEventListener('change', onEmailChange);
+orderBtn.addEventListener('click', onOrderClick);
+
+
+// ==========================================================
 function registerDeleteEvents(delete_item)
 {
   delete_item.addEventListener('click', onDeleteClick);
@@ -292,6 +308,148 @@ function onQuantityChange(event)
           }
       }
     }
+}
+
+// ==========================================================
+// onNameChange
+// ==========================================================
+function onNameChange(event)
+{
+  if (!validateName(formName))
+  {
+    //var elt = formName.closest("p");
+    
+    var elt = document.getElementById('firstNameErrorMsg');
+    console.log(elt);
+
+    if (elt)
+    {
+      elt.textContent = "onNameChange error";
+    }
+  }
+}
+
+// ==========================================================
+// onNameChange
+// ==========================================================
+function onLastNameChange(event)
+{
+  if (!validateName(formLastName))
+  {
+    //var elt = formLastName.closest("p");
+    
+    var elt = document.getElementById('lastNameErrorMsg');
+    console.log(elt);
+
+    if (elt)
+    {
+      elt.textContent = "onLastNameChange error";
+    }
+  }
+}
+
+// ==========================================================
+// onAddressChange
+// ==========================================================
+function onAddressChange(event)
+{
+  if (!validateAdress(formAddress))
+  {
+    //var elt = formAddress.closest("p");
+    
+    var elt = document.getElementById('addressErrorMsg');
+    console.log(elt);
+
+    if (elt)
+    {
+      elt.textContent = "onAddressChange error";
+    }
+  }
+}
+
+// ==========================================================
+// onCityChange
+// ==========================================================
+function onCityChange(event)
+{
+  if (!validateName(formCity))
+  {
+    //var elt = formAddress.closest("p");
+    
+    var elt = document.getElementById('cityErrorMsg');
+    console.log(elt);
+
+    if (elt)
+    {
+      elt.textContent = "onCityChange error";
+    }
+  }
+}
+
+// ==========================================================
+// onEmailChange
+// ==========================================================
+function onEmailChange(event)
+{
+  if (!validateEmail(formEmail))
+  {
+    //var elt = formAddress.closest("p");
+    
+    var elt = document.getElementById('emailErrorMsg');
+    console.log(elt);
+
+    if (elt)
+    {
+      elt.textContent = "onEmailChange error";
+    }
+  }
+}
+
+// ==========================================================
+// onOrderClick
+// ==========================================================
+function onOrderClick(event)
+{
+  
+}
+
+// ==========================================================
+// validateName
+// ==========================================================
+function validateName(element) 
+{
+  // https://stackoverflow.com/questions/20690499/concrete-javascript-regex-for-accented-characters-diacritics
+  
+  var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{2,30}$/;
+
+  return regex.test(element.value);
+}
+
+// ==========================================================
+// validateAdress
+// ==========================================================
+function validateAdress(element) 
+{
+  var regex = /^[a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF\s,'-]*$/;
+  return regex.test(element.value);
+}
+
+// ==========================================================
+// validateCity
+// ==========================================================
+function validateCity(element) 
+{
+  var regex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
+  return regex.test(element.value);
+}
+
+// ==========================================================
+// validateEmail
+// ==========================================================
+function validateEmail(element) 
+{
+  var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  return regex.test(element.value);
 }
 
 // ==========================================================
