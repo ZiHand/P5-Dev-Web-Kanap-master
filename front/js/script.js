@@ -28,7 +28,6 @@ function apiAskForProducts(productsArray, url)
       // Json parsing
       for (var obj of json) 
       {
-        // TODO: Better way i guess... Use object.
         const productObj =  {colors: [], _id: "", name: "", price: 0, imageUrl: "", description: "", altTxt: ""};
 
           // Check know properties
@@ -44,7 +43,6 @@ function apiAskForProducts(productsArray, url)
           productsArray.push(productObj);
       }
 
-      console.log(productsArray);
       return productsArray;
     })
     .then(function(array)

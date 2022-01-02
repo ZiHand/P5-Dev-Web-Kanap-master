@@ -175,8 +175,6 @@ function addToStorage()
     // If so inc it.
     // Else, add new one.
 
-    console.log("");
-    console.log("**** AddToStorage check Start ****");
     let bFound = false;
 
     for (var i = 0; i < orderStorage.length; i++)
@@ -189,7 +187,6 @@ function addToStorage()
         // Inc retrievedObject
         retrievedObject.count++;
         bFound = true;
-        console.log("Updating to local storage : " + JSON.stringify(retrievedObject));
         orderStorage.setItem(i.toString(), JSON.stringify(retrievedObject));
         break;
       }
@@ -197,12 +194,8 @@ function addToStorage()
 
     if (!bFound)
     {
-      console.log("Wrinting to local storage :" + JSON.stringify(OrderProduct));
       orderStorage.setItem((orderStorage.length), JSON.stringify(OrderProduct));
     }
-
-    console.log("Local storage count : " + orderStorage.length);
-    console.log("**** AddToStorage check End ****");
 }
 
 // **********************************************************
@@ -236,8 +229,7 @@ function onOrderClick(event)
 // ==========================================================
 function onQuantityChange(event) 
 {
-    event.preventDefault();
-    console.log(event.target.value);
+    event.preventDefault();;
 
     // Check validity
     if (OrderProduct && event.target.value >= 1)

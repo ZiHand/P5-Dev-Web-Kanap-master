@@ -30,10 +30,7 @@ function apiAskForProduct(url, order)
     })
     .then(function(data) 
     {
-
-      console.log(data);
-
-      let productObj          = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
+      let productObj = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
       
       // Fill datas
       productObj.colors       = data.colors;
@@ -45,7 +42,6 @@ function apiAskForProduct(url, order)
       productObj.altTxt       = data.altTxt;
 
       return productObj;
-
     })
     .then(function(product) 
     {
@@ -72,8 +68,6 @@ function apiAskForProduct(url, order)
 
 // ==========================================================
 // loadFromStorage
-//
-// return value: bool
 // ==========================================================
 function loadFromStorage()
 {
@@ -96,7 +90,7 @@ function loadFromStorage()
 //      - Object    (order)
 //      - Object    (product)
 //
-// Return void
+// Return item index (number)
 // ==========================================================
 function writeOrderTo_article_items(order, product)
 {
@@ -132,14 +126,12 @@ function writeOrderTo_article_items(order, product)
 
   const delete_item = document.getElementsByClassName('deleteItem');
 
-  console.log("deleteItem count : " + delete_item.length);
-
   return delete_item.length;
 }
 
-// **********************************************************
+// ==========================================================
 // updateCartPrice
-// **********************************************************
+// ==========================================================
 function updateCartPrice()
 {
   let totalQuantity = document.getElementById('totalQuantity');
@@ -155,8 +147,6 @@ function updateCartPrice()
 
     price += (Number(retrievedObject.price) * Number(retrievedObject.count));
   }
-
-  console.log(price);
 
   if (totalQuantity)
   {
@@ -184,7 +174,7 @@ formLastName.addEventListener('change', onLastNameChange);
 formAddress.addEventListener('change', onAddressChange);
 formCity.addEventListener('change', onCityChange);
 formEmail.addEventListener('change', onEmailChange);
-orderBtn.addEventListener('submit', onOrderClick);
+orderBtn.addEventListener('click', onOrderClick);
 
 
 // ==========================================================
@@ -204,7 +194,6 @@ function registerQuantityEvents(item)
 // ==========================================================
 function onDeleteClick(event) 
 {
-    console.log("onDeleteClick");
     event.preventDefault();
 
     if (event.currentTarget === this)
@@ -255,7 +244,6 @@ function onDeleteClick(event)
 // ==========================================================
 function onQuantityChange(event) 
 {
-    console.log("onQuantityChange");
     event.preventDefault();
 
     if (event.currentTarget === this)
@@ -288,7 +276,6 @@ function onQuantityChange(event)
                     {
                       if (event.target.value >= 1)
                       {
-                        console.log("Target value count : " + event.target.value);
                         retrievedObject.count = event.target.value;
                         orderStorage.setItem(i.toString(), JSON.stringify(retrievedObject));
                         break;
@@ -301,10 +288,7 @@ function onQuantityChange(event)
                     }
                   }
                   
-                 
                   updateCartPrice();
-                  // reload script
-                  //location.reload();
               }
             }
           }
@@ -320,13 +304,11 @@ function onNameChange(event)
   if (!validateName(formName))
   {
     //var elt = formName.closest("p");
-    
     var elt = document.getElementById('firstNameErrorMsg');
-    console.log(elt);
 
     if (elt)
     {
-      elt.textContent = "onNameChange error";
+      elt.textContent = "Merci de fournir un prenom valide.";
     }
   }
 }
@@ -338,14 +320,11 @@ function onLastNameChange(event)
 {
   if (!validateName(formLastName))
   {
-    //var elt = formLastName.closest("p");
-    
     var elt = document.getElementById('lastNameErrorMsg');
-    console.log(elt);
 
     if (elt)
     {
-      elt.textContent = "onLastNameChange error";
+      elt.textContent = "Merci de fournir un nom valide.";
     }
   }
 }
@@ -357,14 +336,11 @@ function onAddressChange(event)
 {
   if (!validateAdress(formAddress))
   {
-    //var elt = formAddress.closest("p");
-    
     var elt = document.getElementById('addressErrorMsg');
-    console.log(elt);
 
     if (elt)
     {
-      elt.textContent = "onAddressChange error";
+      elt.textContent = "Merci de fournir une addresse valide.";
     }
   }
 }
@@ -376,14 +352,11 @@ function onCityChange(event)
 {
   if (!validateName(formCity))
   {
-    //var elt = formAddress.closest("p");
-    
     var elt = document.getElementById('cityErrorMsg');
-    console.log(elt);
 
     if (elt)
     {
-      elt.textContent = "onCityChange error";
+      elt.textContent = "Merci de fournir un nom de ville valide.";
     }
   }
 }
@@ -395,14 +368,11 @@ function onEmailChange(event)
 {
   if (!validateEmail(formEmail))
   {
-    //var elt = formAddress.closest("p");
-    
     var elt = document.getElementById('emailErrorMsg');
-    console.log(elt);
 
     if (elt)
     {
-      elt.textContent = "onEmailChange error";
+      elt.textContent = "Merci de fournir una addresse Email valide.";
     }
   }
 }
@@ -416,7 +386,7 @@ function checkForm()
       validateName(formLastName) &&
       validateAdress(formAddress) &&
       validateName(formCity) &&
-      validateEmail(validateEmail))
+      validateEmail(formEmail))
   {
     return true;
   }
@@ -430,11 +400,14 @@ function checkForm()
 function onOrderClick(event)
 {
   event.preventDefault();
-  preventDefault();
 
   if (checkForm())
   {
     submitForm();
+  }
+  else
+  {
+    console.log("checkForm FAILED");
   }
 }
 
@@ -446,7 +419,6 @@ function validateName(element)
   // https://stackoverflow.com/questions/20690499/concrete-javascript-regex-for-accented-characters-diacritics
 
   var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{2,30}$/;
-
   return regex.test(element.value);
 }
 
@@ -514,20 +486,13 @@ async function submitForm()
     })
     .then(function(value) 
     {
-      console.log(value);
-      
       var currentLocation = window.location;
       var currentUrl = currentLocation.href;
       let indexOf = currentUrl.lastIndexOf("/");
 
-     
       var orderUrl = currentUrl.substring(0, indexOf + 1);
       orderUrl += "confirmation.html?Id=" + value.orderId;
-      console.log("Confirmation url : " + orderUrl);
-
-      console.log(orderUrl);
-
-      //document.location = orderUrl;
+      document.location = orderUrl;
     })
     .catch(function(err) 
     {
