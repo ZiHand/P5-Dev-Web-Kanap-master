@@ -20,3 +20,4 @@ function writeOrderToDom()
 
 // ==========================================================
 writeOrderToDom();
+localStorage.clear();
