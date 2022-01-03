@@ -16,11 +16,11 @@ function dumpStorage()
   console.log("******* Storage Dump Start *******");
   console.log("Storage count: " + orderStorage.length);
 
-  for (var i = 0; i <= orderStorage.length - 1; i++)
+  for (var i = 0; i < orderStorage.length; i++)
   {
-    console.log("Order index " + i + " : " + orderStorage.getItem(i.toString()));
+    console.log("Order index " + i + " : " + orderStorage[i]);
 
-    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+    var retrievedObject = JSON.parse(orderStorage[i]);
 
     if (!retrievedObject)
     {
@@ -32,6 +32,41 @@ function dumpStorage()
   console.log("");
 }
 
+// ==========================================================
+// removeFromStorage
+// ==========================================================
+function removeFromStorage(article)
+{
+    let _id             = article.getAttribute('data-id');
+    let color           = article.getAttribute('data-color');
+    let foundItem       = false;
+    let itemIndex       = 0;
+    const storageCount  = orderStorage.length;
+
+    for (var i = 0; i < storageCount; i++)
+    {
+      var retrievedObject = JSON.parse(orderStorage[i]);
+
+      if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
+      {
+        foundItem = true;
+        orderStorage.removeItem(itemIndex);
+        continue;
+      }
+
+      if (foundItem)
+      {
+        console.log("Reorder to index " + itemIndex + " for : " + orderStorage[i]);
+        orderStorage.setItem(itemIndex, JSON.stringify(retrievedObject));
+        itemIndex++;
+        orderStorage.removeItem(itemIndex);
+      }
+      else
+      {
+        itemIndex++;
+      }
+    }
+}
 // ==========================================================
 // apiAskForProduct
 // ==========================================================
@@ -101,7 +136,7 @@ function loadOrderFromStorage()
     for (var i = 0; i < orderStorage.length; i++)
     {
         // Retrieve the orderObject
-      var retrievedOrder = JSON.parse(orderStorage.getItem(i.toString()));
+      var retrievedOrder = JSON.parse(orderStorage[i]);
 
       if (retrievedOrder)
       {
@@ -169,7 +204,7 @@ function updateCartPrice()
 
   for (var i = 0; i <= orderStorage.length - 1; i++)
   {
-    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+    var retrievedObject = JSON.parse(orderStorage[i]);
 
     if (retrievedObject)
     {
@@ -178,7 +213,7 @@ function updateCartPrice()
     }
     else
     {
-      console.log("updateCartPrice FAILED ! retrievedObject == null : " + orderStorage.getItem(i.toString()));
+      console.log("updateCartPrice FAILED ! retrievedObject == null : " + orderStorage[i]);
     }
   }
 
@@ -251,27 +286,8 @@ function onDeleteClick(event)
 
               if (article)
               {
-                  // Find id
-                  let _id = article.getAttribute('data-id');
-                  let color = article.getAttribute('data-color');
-
-                  // remove from storage
-                  for (var i = 0; i <= orderStorage.length - 1; i++)
-                  {
-                    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
-
-                    if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
-                    {
-                      orderStorage.removeItem(i.toString());
-                      break;
-                    }
-                    else
-                    {
-                      console.log("Unable to get order : " + i);
-                      console.log("");
-                    }
-                  }
-
+                  dumpStorage();
+                  removeFromStorage(article);
                   dumpStorage();
                   
                   if (orderStorage.length <= 0)
@@ -284,8 +300,7 @@ function onDeleteClick(event)
                     // update price
                     updateCartPrice();
                     // reload script
-                    //location.reload();
-                    //goToSiteLocation("cart.html");
+                    location.reload();
                   }
               }
             }
@@ -325,19 +340,19 @@ function onQuantityChange(event)
                   // remove from storage
                   for (var i = 0; i <= orderStorage.length - 1; i++)
                   {
-                    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+                    var retrievedObject = JSON.parse(orderStorage[i]);
 
                     if (retrievedObject && retrievedObject._id === _id)
                     {
                       if (event.target.value >= 1)
                       {
                         retrievedObject.count = event.target.value;
-                        orderStorage.setItem(i.toString(), JSON.stringify(retrievedObject));
+                        orderStorage.setItem(i, JSON.stringify(retrievedObject));
                         break;
                       }
                       else
                       {
-                        orderStorage.removeItem(i.toString());
+                        orderStorage.removeItem(i);
                         break;
                       }
                     }

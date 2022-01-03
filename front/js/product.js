@@ -180,21 +180,21 @@ function addToStorage()
     for (var i = 0; i < orderStorage.length; i++)
     {
       // Retrieve the orderObject
-      var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+      var retrievedObject = JSON.parse(orderStorage[i]);
 
       if (isOrderSameOf(OrderProduct, retrievedObject))
       {
         // Inc retrievedObject
         retrievedObject.count++;
         bFound = true;
-        orderStorage.setItem(i.toString(), JSON.stringify(retrievedObject));
+        orderStorage.setItem(i, JSON.stringify(retrievedObject));
         break;
       }
     }
 
     if (!bFound)
     {
-      orderStorage.setItem((orderStorage.length), JSON.stringify(OrderProduct));
+      orderStorage.setItem(orderStorage.length, JSON.stringify(OrderProduct));
     }
 }
 
