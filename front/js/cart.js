@@ -9,12 +9,35 @@ let userContact         = {firstName: "", lastName:"", address:"", city:"", emai
  
 
 // ==========================================================
+// dumpStorage
+// ==========================================================
+function dumpStorage()
+{
+  console.log("******* Storage Dump Start *******");
+  console.log("Storage count: " + orderStorage.length);
+
+  for (var i = 0; i <= orderStorage.length - 1; i++)
+  {
+    console.log("Order index " + i + " : " + orderStorage.getItem(i.toString()));
+
+    var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
+
+    if (!retrievedObject)
+    {
+      console.log("  Failed to retrive object: " + i);
+    }
+  }
+
+  console.log("******* Storage Dump End *******");
+  console.log("");
+}
 
 // ==========================================================
 // apiAskForProduct
-// 
+// ==========================================================
 // Args: 
 //    - String (URL)
+//    - Object (Order) 
 //
 // return Promise.
 // ==========================================================
@@ -45,13 +68,12 @@ function apiAskForProduct(url, order)
     })
     .then(function(product) 
     {
-      return writeOrderTo_article_items(order, product);
+      return writeOrderToArticleItems(order, product);
     })
     .then(function(itemindex) 
     {
       const delete_item = document.getElementsByClassName('deleteItem');
 
-      console.log("Index : " + itemindex);
       registerDeleteEvents(delete_item.item(itemindex - 1));
 
       const itemQuantity = document.getElementsByClassName('itemQuantity');
@@ -67,9 +89,14 @@ function apiAskForProduct(url, order)
 }
 
 // ==========================================================
-// loadFromStorage
+// loadOrderFromStorage
 // ==========================================================
-function loadFromStorage()
+// Args: 
+//    - None
+//
+// return void
+// ==========================================================
+function loadOrderFromStorage()
 {
     for (var i = 0; i < orderStorage.length; i++)
     {
@@ -84,7 +111,7 @@ function loadFromStorage()
 }
 
 // ==========================================================
-//  function writeOrderTo_article_items
+//  function writeOrderToArticleItems
 // ==========================================================
 // Arguments:
 //      - Object    (order)
@@ -92,13 +119,11 @@ function loadFromStorage()
 //
 // Return item index (number)
 // ==========================================================
-function writeOrderTo_article_items(order, product)
+function writeOrderToArticleItems(order, product)
 {
     article_Count++;
 
     let cart__items = document.getElementById('cart__items');
-
-    console.log("writeOrderTo_cart_items");
 
     let article_write = `<article class="cart__item" data-id="${order._id}" data-color="${order.color}">
     <div class="cart__item__img">
@@ -140,12 +165,21 @@ function updateCartPrice()
   let articleCount  = 0;
   let price         = 0;
 
+  console.log("orderStorage.length : " + orderStorage.length);
+
   for (var i = 0; i <= orderStorage.length - 1; i++)
   {
     var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
-    articleCount += Number(retrievedObject.count);
 
-    price += (Number(retrievedObject.price) * Number(retrievedObject.count));
+    if (retrievedObject)
+    {
+      articleCount += Number(retrievedObject.count);
+      price += (Number(retrievedObject.price) * Number(retrievedObject.count));
+    }
+    else
+    {
+      console.log("updateCartPrice FAILED ! retrievedObject == null : " + orderStorage.getItem(i.toString()));
+    }
   }
 
   if (totalQuantity)
@@ -176,14 +210,17 @@ formCity.addEventListener('change', onCityChange);
 formEmail.addEventListener('change', onEmailChange);
 orderBtn.addEventListener('click', onOrderClick);
 
-
+// ==========================================================
+// registerDeleteEvents
 // ==========================================================
 function registerDeleteEvents(delete_item)
 {
   delete_item.addEventListener('click', onDeleteClick);
 }
 
-// **********************************************************
+// ==========================================================
+// registerQuantityEvents
+// ==========================================================
 function registerQuantityEvents(item)
 {
   item.addEventListener('change', onQuantityChange);
@@ -216,22 +253,40 @@ function onDeleteClick(event)
               {
                   // Find id
                   let _id = article.getAttribute('data-id');
+                  let color = article.getAttribute('data-color');
 
                   // remove from storage
                   for (var i = 0; i <= orderStorage.length - 1; i++)
                   {
                     var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
 
-                    if (retrievedObject._id === _id)
+                    if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
                     {
                       orderStorage.removeItem(i.toString());
                       break;
                     }
+                    else
+                    {
+                      console.log("Unable to get order : " + i);
+                      console.log("");
+                    }
                   }
+
+                  dumpStorage();
                   
-                  // reload script
-                  updateCartPrice();
-                  location.reload();
+                  if (orderStorage.length <= 0)
+                  {
+                    // Go back to products
+                    goToSiteLocation("index.html");
+                  }
+                  else
+                  {
+                    // update price
+                    updateCartPrice();
+                    // reload script
+                    //location.reload();
+                    //goToSiteLocation("cart.html");
+                  }
               }
             }
           }
@@ -272,7 +327,7 @@ function onQuantityChange(event)
                   {
                     var retrievedObject = JSON.parse(orderStorage.getItem(i.toString()));
 
-                    if (retrievedObject._id === _id)
+                    if (retrievedObject && retrievedObject._id === _id)
                     {
                       if (event.target.value >= 1)
                       {
@@ -288,6 +343,7 @@ function onQuantityChange(event)
                     }
                   }
                   
+                  // Update price
                   updateCartPrice();
               }
             }
@@ -382,8 +438,8 @@ function onEmailChange(event)
 // ==========================================================
 function checkForm()
 {
-  if (validateName(formName) &&
-      validateName(formLastName) &&
+  if (validateName(formName)      &&
+      validateName(formLastName)  &&
       validateAdress(formAddress) &&
       validateName(formCity) &&
       validateEmail(formEmail))
@@ -450,9 +506,9 @@ function validateEmail(element)
 }
 
 // ==========================================================
-// submitForm
+// computeJsonBody
 // ==========================================================
-async function submitForm()
+function computeJsonBody()
 {
   userContact.firstName = formName.value;
   userContact.lastName  = formLastName.value;
@@ -467,15 +523,32 @@ async function submitForm()
       productArray.push(item._id);
   })
 
-  let jsonBody = {contact: userContact, products: productArray};
+  return {contact: userContact, products: productArray};
+}
 
+// ==========================================================
+// goToSiteLocation
+// ==========================================================
+function goToSiteLocation(pageName)
+{
+  var currentUrl    = window.location.href;
+  let indexOf       = currentUrl.lastIndexOf("/") + 1;
+
+  document.location = currentUrl.substring(0, indexOf) + pageName;
+}
+
+// ==========================================================
+// submitForm
+// ==========================================================
+async function submitForm()
+{
   fetch(apiUrlBase + "order", {
 	            method: "POST",
 	            headers: { 
                 'Accept': 'application/json', 
                 'Content-Type': 'application/json' 
               },
-	            body: JSON.stringify(jsonBody)
+	            body: JSON.stringify(computeJsonBody())
             })
     .then(function(res) 
     {
@@ -486,13 +559,11 @@ async function submitForm()
     })
     .then(function(value) 
     {
-      var currentLocation = window.location;
-      var currentUrl = currentLocation.href;
-      let indexOf = currentUrl.lastIndexOf("/");
+      goToSiteLocation("confirmation.html?Id=" + value.orderId);
+      /*var currentUrl    = window.location.href;
+      let indexOf       = currentUrl.lastIndexOf("/") + 1;
 
-      var orderUrl = currentUrl.substring(0, indexOf + 1);
-      orderUrl += "confirmation.html?Id=" + value.orderId;
-      document.location = orderUrl;
+      document.location = currentUrl.substring(0, indexOf) + "confirmation.html?Id=" + value.orderId;*/
     })
     .catch(function(err) 
     {
@@ -506,16 +577,14 @@ async function submitForm()
 // ==========================================================
 function mainRun()
 {
-  loadFromStorage();
-  console.log("Loaded Orders : " + JSON.stringify(orderArray, null, " "));
+  loadOrderFromStorage();
 
   orderArray.forEach((item, index) => 
   {
-    console.log("Order " + index + ": " + JSON.stringify(orderArray[index], null, " "));
-
     // Retreive product
     apiAskForProduct(apiUrlBase + item._id, item);
   })
 }
 
+// ==========================================================
 mainRun();
