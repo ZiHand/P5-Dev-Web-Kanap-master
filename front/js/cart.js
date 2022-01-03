@@ -33,40 +33,70 @@ function dumpStorage()
 }
 
 // ==========================================================
-// removeFromStorage
+// removeOrderFromStorage
 // ==========================================================
-function removeFromStorage(article)
+function removeOrderFromStorage(article)
 {
-    let _id             = article.getAttribute('data-id');
-    let color           = article.getAttribute('data-color');
-    let foundItem       = false;
-    let itemIndex       = 0;
-    const storageCount  = orderStorage.length;
+  let _id             = article.getAttribute('data-id');
+  let color           = article.getAttribute('data-color');
+  let foundItem       = false;
+  let itemIndex       = 0;
+  const storageCount  = orderStorage.length;
 
-    for (var i = 0; i < storageCount; i++)
+  for (var i = 0; i < storageCount; i++)
+  {
+    var retrievedObject = JSON.parse(orderStorage[i]);
+
+    if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
     {
-      var retrievedObject = JSON.parse(orderStorage[i]);
+      foundItem = true;
+      orderStorage.removeItem(itemIndex);
+      continue;
+    }
 
-      if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
-      {
-        foundItem = true;
-        orderStorage.removeItem(itemIndex);
-        continue;
-      }
+    if (foundItem)
+    {
+      console.log("Reorder to index " + itemIndex + " for : " + orderStorage[i]);
+      orderStorage.setItem(itemIndex, JSON.stringify(retrievedObject));
+      itemIndex++;
+      orderStorage.removeItem(itemIndex);
+    }
+    else
+    {
+      itemIndex++;
+    }
+  }
+}
 
-      if (foundItem)
+// ==========================================================
+// updateOrderQuantitytoStorage
+// ==========================================================
+function updateOrderQuantitytoStorage(article, quantity)
+{
+  let _id   = article.getAttribute('data-id');
+  let color = article.getAttribute('data-color');
+
+  for (var i = 0; i <= orderStorage.length - 1; i++)
+  {
+    var retrievedObject = JSON.parse(orderStorage[i]);
+
+    if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
+    {
+      if (quantity >= 1)
       {
-        console.log("Reorder to index " + itemIndex + " for : " + orderStorage[i]);
-        orderStorage.setItem(itemIndex, JSON.stringify(retrievedObject));
-        itemIndex++;
-        orderStorage.removeItem(itemIndex);
+        retrievedObject.count = quantity;
+        orderStorage.setItem(i, JSON.stringify(retrievedObject));
+        break;
       }
       else
       {
-        itemIndex++;
+        orderStorage.removeItem(i);
+        break;
       }
     }
+  }
 }
+
 // ==========================================================
 // apiAskForProduct
 // ==========================================================
@@ -118,7 +148,6 @@ function apiAskForProduct(url, order)
     })
     .catch(function(err) 
     {
-      // Une erreur est survenue
       console.log("apiAskForProduct throw Error: " + err);
     }); 
 }
@@ -135,7 +164,7 @@ function loadOrderFromStorage()
 {
     for (var i = 0; i < orderStorage.length; i++)
     {
-        // Retrieve the orderObject
+      // Retrieve the orderObject
       var retrievedOrder = JSON.parse(orderStorage[i]);
 
       if (retrievedOrder)
@@ -196,11 +225,8 @@ function updateCartPrice()
 {
   let totalQuantity = document.getElementById('totalQuantity');
   let totalPrice    = document.getElementById('totalPrice');
-
   let articleCount  = 0;
   let price         = 0;
-
-  console.log("orderStorage.length : " + orderStorage.length);
 
   for (var i = 0; i <= orderStorage.length - 1; i++)
   {
@@ -286,9 +312,9 @@ function onDeleteClick(event)
 
               if (article)
               {
-                  dumpStorage();
-                  removeFromStorage(article);
-                  dumpStorage();
+                  //dumpStorage();
+                  removeOrderFromStorage(article);
+                  //dumpStorage();
                   
                   if (orderStorage.length <= 0)
                   {
@@ -334,32 +360,33 @@ function onQuantityChange(event)
 
               if (article)
               {
-                  // Find id
-                  let _id = article.getAttribute('data-id');
+                updateOrderQuantitytoStorage(article, event.target.value);
+                // Find id
+                /*let _id = article.getAttribute('data-id');
+                let color = article.getAttribute('data-color');
 
-                  // remove from storage
-                  for (var i = 0; i <= orderStorage.length - 1; i++)
+                for (var i = 0; i <= orderStorage.length - 1; i++)
+                {
+                  var retrievedObject = JSON.parse(orderStorage[i]);
+
+                  if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
                   {
-                    var retrievedObject = JSON.parse(orderStorage[i]);
-
-                    if (retrievedObject && retrievedObject._id === _id)
+                    if (event.target.value >= 1)
                     {
-                      if (event.target.value >= 1)
-                      {
-                        retrievedObject.count = event.target.value;
-                        orderStorage.setItem(i, JSON.stringify(retrievedObject));
-                        break;
-                      }
-                      else
-                      {
-                        orderStorage.removeItem(i);
-                        break;
-                      }
+                      retrievedObject.count = event.target.value;
+                      orderStorage.setItem(i, JSON.stringify(retrievedObject));
+                      break;
+                    }
+                    else
+                    {
+                      orderStorage.removeItem(i);
+                      break;
                     }
                   }
-                  
-                  // Update price
-                  updateCartPrice();
+                }*/
+                
+                // Update price
+                updateCartPrice();
               }
             }
           }
@@ -456,7 +483,7 @@ function checkForm()
   if (validateName(formName)      &&
       validateName(formLastName)  &&
       validateAdress(formAddress) &&
-      validateName(formCity) &&
+      validateName(formCity)      &&
       validateEmail(formEmail))
   {
     return true;
@@ -533,7 +560,7 @@ function computeJsonBody()
 
   let productArray = [];
 
-  orderArray.forEach((item, index) => 
+  orderArray.forEach((item) => 
   {
       productArray.push(item._id);
   })
@@ -575,14 +602,9 @@ async function submitForm()
     .then(function(value) 
     {
       goToSiteLocation("confirmation.html?Id=" + value.orderId);
-      /*var currentUrl    = window.location.href;
-      let indexOf       = currentUrl.lastIndexOf("/") + 1;
-
-      document.location = currentUrl.substring(0, indexOf) + "confirmation.html?Id=" + value.orderId;*/
     })
     .catch(function(err) 
     {
-      // Une erreur est survenue
       console.log("submitForm throw : " + err);
     });
 }
