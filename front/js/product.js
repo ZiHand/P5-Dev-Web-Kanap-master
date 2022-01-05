@@ -232,13 +232,15 @@ function onQuantityChange(event)
     event.preventDefault();;
 
     // Check validity
-    if (OrderProduct && event.target.value >= 1)
+    if (OrderProduct && event.target.value >= 1 && event.target.value <= 100)
     {
       OrderProduct.count = event.target.value;
       return;
     }
 
     alert("Meci de saisir une valeur superireur à 0 et inférieur à 100.");
+
+    quantityCtrl.value = 1;
 }
 
 // ==========================================================

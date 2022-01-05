@@ -88,11 +88,6 @@ function updateOrderQuantitytoStorage(article, quantity)
         orderStorage.setItem(i, JSON.stringify(retrievedObject));
         break;
       }
-      else
-      {
-        orderStorage.removeItem(i);
-        break;
-      }
     }
   }
 }
@@ -162,16 +157,16 @@ function apiAskForProduct(url, order)
 // ==========================================================
 function loadOrderFromStorage()
 {
-    for (var i = 0; i < orderStorage.length; i++)
-    {
-      // Retrieve the orderObject
-      var retrievedOrder = JSON.parse(orderStorage[i]);
+  for (var i = 0; i < orderStorage.length; i++)
+  {
+    // Retrieve the orderObject
+    var retrievedOrder = JSON.parse(orderStorage[i]);
 
-      if (retrievedOrder)
-      {
-        orderArray.push(retrievedOrder);
-      }
+    if (retrievedOrder)
+    {
+      orderArray.push(retrievedOrder);
     }
+  }
 }
 
 // ==========================================================
@@ -292,47 +287,47 @@ function registerQuantityEvents(item)
 // ==========================================================
 function onDeleteClick(event) 
 {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (event.currentTarget === this)
+  if (event.currentTarget === this)
+  {
+    let cart__item__content__settings__delete = event.currentTarget.parentElement;
+
+    if (cart__item__content__settings__delete)
     {
-      let cart__item__content__settings__delete = event.currentTarget.parentElement;
+      let cart__item__content__settings = cart__item__content__settings__delete.parentElement;
 
-      if (cart__item__content__settings__delete)
+      if (cart__item__content__settings)
       {
-          let cart__item__content__settings = cart__item__content__settings__delete.parentElement;
+        let cart__item__content = cart__item__content__settings.parentElement;
 
-          if (cart__item__content__settings)
+        if (cart__item__content)
+        {
+          let article = cart__item__content.parentElement;
+
+          if (article)
           {
-            let cart__item__content = cart__item__content__settings.parentElement;
-
-            if (cart__item__content)
+            //dumpStorage();
+            removeOrderFromStorage(article);
+            //dumpStorage();
+            
+            if (orderStorage.length <= 0)
             {
-              let article = cart__item__content.parentElement;
-
-              if (article)
-              {
-                  //dumpStorage();
-                  removeOrderFromStorage(article);
-                  //dumpStorage();
-                  
-                  if (orderStorage.length <= 0)
-                  {
-                    // Go back to products
-                    goToSiteLocation("index.html");
-                  }
-                  else
-                  {
-                    // update price
-                    updateCartPrice();
-                    // reload script
-                    location.reload();
-                  }
-              }
+              // Go back to products
+              goToSiteLocation("index.html");
+            }
+            else
+            {
+              // update price
+              updateCartPrice();
+              // reload script
+              location.reload();
             }
           }
+        }
       }
     }
+  }
 }
 
 // ==========================================================
@@ -340,58 +335,45 @@ function onDeleteClick(event)
 // ==========================================================
 function onQuantityChange(event) 
 {
-    event.preventDefault();
+  
 
-    if (event.currentTarget === this)
+  event.preventDefault();
+
+  if (event.currentTarget === this)
+  {
+    let cart__item__content__settings__quantity = event.currentTarget.parentElement;
+
+    if (cart__item__content__settings__quantity)
     {
-      let cart__item__content__settings__quantity = event.currentTarget.parentElement;
+      let cart__item__content__settings = cart__item__content__settings__quantity.parentElement;
 
-      if (cart__item__content__settings__quantity)
+      if (cart__item__content__settings)
       {
-          let cart__item__content__settings = cart__item__content__settings__quantity.parentElement;
+        let cart__item__content = cart__item__content__settings.parentElement;
 
-          if (cart__item__content__settings)
+        if (cart__item__content)
+        {
+          let article = cart__item__content.parentElement;
+
+          if (article)
           {
-            let cart__item__content = cart__item__content__settings.parentElement;
-
-            if (cart__item__content)
+            if (event.target.value <= 0 || event.target.value > 100)
             {
-              let article = cart__item__content.parentElement;
+              alert("Meci de saisir une valeur superireur à 0 et inférieur à 100.");
 
-              if (article)
-              {
-                updateOrderQuantitytoStorage(article, event.target.value);
-                // Find id
-                /*let _id = article.getAttribute('data-id');
-                let color = article.getAttribute('data-color');
-
-                for (var i = 0; i <= orderStorage.length - 1; i++)
-                {
-                  var retrievedObject = JSON.parse(orderStorage[i]);
-
-                  if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
-                  {
-                    if (event.target.value >= 1)
-                    {
-                      retrievedObject.count = event.target.value;
-                      orderStorage.setItem(i, JSON.stringify(retrievedObject));
-                      break;
-                    }
-                    else
-                    {
-                      orderStorage.removeItem(i);
-                      break;
-                    }
-                  }
-                }*/
-                
-                // Update price
-                updateCartPrice();
-              }
+              event.target.value = event.target.defaultValue;
+              return;
             }
+
+            updateOrderQuantitytoStorage(article, event.target.value);
+            
+            // Update price
+            updateCartPrice();
           }
+        }
       }
     }
+  }
 }
 
 // ==========================================================
@@ -616,7 +598,7 @@ function mainRun()
 {
   loadOrderFromStorage();
 
-  orderArray.forEach((item, index) => 
+  orderArray.forEach((item) => 
   {
     // Retreive product
     apiAskForProduct(apiUrlBase + item._id, item);
