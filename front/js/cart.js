@@ -3,7 +3,6 @@ const apiUrlBase        = "http://localhost:3000/api/products/";
 let OrderProduct        = {_id: "", color: "", count: 1, price: 0};
 let orderStorage        = localStorage;
 let orderArray          = [];
-let article_Count       = 0;
 let totalPrice          = 0;
 let userContact         = {firstName: "", lastName:"", address:"", city:"", email:""};
  
@@ -180,8 +179,6 @@ function loadOrderFromStorage()
 // ==========================================================
 function writeOrderToArticleItems(order, product)
 {
-    article_Count++;
-
     let cart__items = document.getElementById('cart__items');
 
     let article_write = `<article class="cart__item" data-id="${order._id}" data-color="${order.color}">
@@ -335,8 +332,6 @@ function onDeleteClick(event)
 // ==========================================================
 function onQuantityChange(event) 
 {
-  
-
   event.preventDefault();
 
   if (event.currentTarget === this)

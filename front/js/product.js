@@ -1,4 +1,7 @@
 // ==========================================================
+// https://stackoverflow.com/questions/43762363/how-to-store-an-array-of-objects-in-local-storage
+
+
 const apiUrlBase = "http://localhost:3000/api/products/";
 let _ID = new URL(window.location.href).searchParams.get('id');
 
@@ -199,7 +202,11 @@ function addToStorage()
 }
 
 // **********************************************************
+// ==========================================================
+//
 //                        Events
+//
+// ==========================================================
 // **********************************************************
 
 // ==========================================================
@@ -217,7 +224,7 @@ function onOrderClick(event)
     {
         // Write to local storage.
         addToStorage();
-        window.location.replace("../html/cart.html");
+        window.location.replace("../html/index.html");
         return;
     }
 
@@ -259,6 +266,8 @@ function onColorChange(event)
 
     alert("Merci de choisir une couleur valide.");
 }
+
+// ==========================================================
 
 
 
