@@ -1,6 +1,5 @@
 // ==========================================================
 const apiUrlBase        = "http://localhost:3000/api/products/";
-let orderStorage        = localStorage;
 let orderArray          = [];
 let totalPrice          = 0;
 let userContact         = {firstName: "", lastName:"", address:"", city:"", email:""};
@@ -12,13 +11,13 @@ let userContact         = {firstName: "", lastName:"", address:"", city:"", emai
 function dumpStorage()
 {
   console.log("******* Storage Dump Start *******");
-  console.log("Storage count: " + orderStorage.length);
+  console.log("Storage count: " + localStorage.length);
 
-  for (var i = 0; i < orderStorage.length; i++)
+  for (var i = 0; i < localStorage.length; i++)
   {
-    console.log("Order index " + i + " : " + orderStorage[i]);
+    console.log("Order index " + i + " : " + localStorage[i]);
 
-    var retrievedObject = JSON.parse(orderStorage[i]);
+    var retrievedObject = JSON.parse(localStorage[i]);
 
     if (!retrievedObject)
     {
@@ -39,31 +38,29 @@ function removeOrderFromStorage(article)
   let color           = article.getAttribute('data-color');
   let foundItem       = false;
   let itemIndex       = 0;
-  const storageCount  = orderStorage.length; // As length will change during loop we store it to continue parsing.
+  const storageCount  = localStorage.length; // As length will change during loop we store it to continue parsing.
 
 
   for (var i = 0; i < storageCount; i++)
   {
-    var retrievedObject = JSON.parse(orderStorage[i]);
+    var retrievedObject = JSON.parse(localStorage[i]);
 
     if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
     {
       foundItem = true;
-      orderStorage.removeItem(itemIndex);
+      localStorage.removeItem(itemIndex);
       continue;
     }
 
     if (foundItem)
     {
-      console.log("Reorder to index " + itemIndex + " for : " + orderStorage[i]);
-      orderStorage.setItem(itemIndex, JSON.stringify(retrievedObject));
+      localStorage.setItem(itemIndex, JSON.stringify(retrievedObject));
       itemIndex++;
-      orderStorage.removeItem(itemIndex);
+      localStorage.removeItem(itemIndex);
+      continue;
     }
-    else
-    {
-      itemIndex++;
-    }
+    
+    itemIndex++;
   }
 }
 
@@ -75,16 +72,16 @@ function updateOrderQuantitytoStorage(article, quantity)
   let _id   = article.getAttribute('data-id');
   let color = article.getAttribute('data-color');
 
-  for (var i = 0; i <= orderStorage.length - 1; i++)
+  for (var i = 0; i <= localStorage.length - 1; i++)
   {
-    var retrievedObject = JSON.parse(orderStorage[i]);
+    var retrievedObject = JSON.parse(localStorage[i]);
 
     if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
     {
       if (quantity >= 1)
       {
         retrievedObject.count = quantity;
-        orderStorage.setItem(i, JSON.stringify(retrievedObject));
+        localStorage.setItem(i, JSON.stringify(retrievedObject));
         break;
       }
     }
@@ -158,10 +155,10 @@ function loadOrderFromStorage()
 {
   let _orderArray = [];
 
-  for (var i = 0; i < orderStorage.length; i++)
+  for (var i = 0; i < localStorage.length; i++)
   {
     // Retrieve the orderObject
-    var retrievedOrder = JSON.parse(orderStorage[i]);
+    var retrievedOrder = JSON.parse(localStorage[i]);
 
     if (retrievedOrder)
     {
@@ -210,9 +207,7 @@ function writeOrderToArticleItems(order, product)
 
   cart__items.insertAdjacentHTML('beforeend', article_write);
 
-  const delete_item = document.getElementsByClassName('deleteItem');
-
-  return delete_item.length;
+  return document.getElementsByClassName('deleteItem').length;
 }
 
 // ==========================================================
@@ -225,9 +220,9 @@ function updateCartPrice()
   let articleCount  = 0;
   let price         = 0;
 
-  for (var i = 0; i <= orderStorage.length - 1; i++)
+  for (var i = 0; i <= localStorage.length - 1; i++)
   {
-    var retrievedObject = JSON.parse(orderStorage[i]);
+    var retrievedObject = JSON.parse(localStorage[i]);
 
     if (retrievedObject)
     {
@@ -236,7 +231,7 @@ function updateCartPrice()
     }
     else
     {
-      console.log("updateCartPrice FAILED ! retrievedObject == null : " + orderStorage[i]);
+      console.log("updateCartPrice FAILED ! retrievedObject == null : " + localStorage[i]);
     }
   }
 
@@ -309,19 +304,16 @@ function onDeleteClick(event)
 
           if (article)
           {
-            //dumpStorage();
             removeOrderFromStorage(article);
-            //dumpStorage();
             
-            if (orderStorage.length <= 0)
+            if (localStorage.length <= 0)
             {
               // Go back to products
+              alert("Votre panier est vide ! Choisissez les produits qui vous conviennent dans notre catalogue !");
               goToSiteLocation("index.html");
             }
             else
             {
-              // update price
-              updateCartPrice();
               // reload script
               location.reload();
             }
@@ -367,8 +359,6 @@ function onQuantityChange(event)
 
             updateOrderQuantitytoStorage(article, event.target.value);
             
-            // Update price
-            updateCartPrice();
             // reload script
             location.reload();
           }
@@ -494,16 +484,7 @@ function onEmailChange(event)
 // ==========================================================
 function checkForm()
 {
-  if (validateName(formName)      &&
-      validateName(formLastName)  &&
-      validateAdress(formAddress) &&
-      validateCity(formCity)      &&
-      validateEmail(formEmail))
-  {
-    return true;
-  }
-
-  return false;
+  return validateName(formName) && validateName(formLastName) && validateAdress(formAddress) && validateCity(formCity) && validateEmail(formEmail);
 }
 
 // ==========================================================
