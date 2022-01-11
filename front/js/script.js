@@ -51,7 +51,7 @@ function apiAskForProducts(productsArray, url)
 
       if (!items)
       {
-        throw console.error();
+        throw console.error("apiAskForProducts throw Error : getElementById('items') = " + items);
       }
 
       // Create new array of strings to writ to DOM
@@ -65,7 +65,7 @@ function apiAskForProducts(productsArray, url)
     .catch(function(err) 
     {
       // Une erreur est survenue
-      console.log("apiAskForProducts throw Error");
+      console.log("apiAskForProducts throw Error : " + err);
     });   
 }
 

@@ -1,6 +1,5 @@
 // ==========================================================
 const apiUrlBase        = "http://localhost:3000/api/products/";
-let OrderProduct        = {_id: "", color: "", count: 1, price: 0};
 let orderStorage        = localStorage;
 let orderArray          = [];
 let totalPrice          = 0;
@@ -40,7 +39,8 @@ function removeOrderFromStorage(article)
   let color           = article.getAttribute('data-color');
   let foundItem       = false;
   let itemIndex       = 0;
-  const storageCount  = orderStorage.length;
+  const storageCount  = orderStorage.length; // As length will change during loop we store it to continue parsing.
+
 
   for (var i = 0; i < storageCount; i++)
   {
@@ -156,6 +156,8 @@ function apiAskForProduct(url, order)
 // ==========================================================
 function loadOrderFromStorage()
 {
+  let _orderArray = [];
+
   for (var i = 0; i < orderStorage.length; i++)
   {
     // Retrieve the orderObject
@@ -163,9 +165,11 @@ function loadOrderFromStorage()
 
     if (retrievedOrder)
     {
-      orderArray.push(retrievedOrder);
+      _orderArray.push(retrievedOrder);
     }
   }
+
+  return _orderArray;
 }
 
 // ==========================================================
@@ -180,6 +184,7 @@ function loadOrderFromStorage()
 function writeOrderToArticleItems(order, product)
 {
     let cart__items = document.getElementById('cart__items');
+    let price = product.price * order.count;
 
     let article_write = `<article class="cart__item" data-id="${order._id}" data-color="${order.color}">
     <div class="cart__item__img">
@@ -189,7 +194,7 @@ function writeOrderToArticleItems(order, product)
       <div class="cart__item__content__description">
         <h2>${product.name}</h2>
         <p>${order.color}</p>
-        <p>${product.price} €</p>
+        <p>${price} €</p>
       </div>
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
@@ -364,6 +369,8 @@ function onQuantityChange(event)
             
             // Update price
             updateCartPrice();
+            // reload script
+            location.reload();
           }
         }
       }
@@ -376,16 +383,21 @@ function onQuantityChange(event)
 // ==========================================================
 function onNameChange(event)
 {
+  let elt = document.getElementById('firstNameErrorMsg');
+
+  if (!elt)
+  {
+    console.log("onNameChange error : getElementById('firstNameErrorMsg') = " + elt);
+    return;
+  }
+
   if (!validateName(formName))
   {
-    //var elt = formName.closest("p");
-    var elt = document.getElementById('firstNameErrorMsg');
-
-    if (elt)
-    {
-      elt.textContent = "Merci de fournir un prenom valide.";
-    }
+    elt.textContent = "Merci de fournir un prenom valide.";
+    return;
   }
+
+  elt.textContent = null;
 }
 
 // ==========================================================
@@ -393,15 +405,21 @@ function onNameChange(event)
 // ==========================================================
 function onLastNameChange(event)
 {
+  let elt = document.getElementById('lastNameErrorMsg');
+
+  if (!elt)
+  {
+    console.log("onLastNameChange error : getElementById('lastNameErrorMsg') = " + elt);
+    return;
+  }
+
   if (!validateName(formLastName))
   {
-    var elt = document.getElementById('lastNameErrorMsg');
-
-    if (elt)
-    {
-      elt.textContent = "Merci de fournir un nom valide.";
-    }
+    elt.textContent = "Merci de fournir un nom valide.";
+    return;
   }
+
+  elt.textContent = null;
 }
 
 // ==========================================================
@@ -409,15 +427,21 @@ function onLastNameChange(event)
 // ==========================================================
 function onAddressChange(event)
 {
+  let elt = document.getElementById('addressErrorMsg');
+
+  if (!elt)
+  {
+    console.log("onAddressChange error : getElementById('addressErrorMsg') = " + elt);
+    return;
+  }
+
   if (!validateAdress(formAddress))
   {
-    var elt = document.getElementById('addressErrorMsg');
-
-    if (elt)
-    {
-      elt.textContent = "Merci de fournir une addresse valide.";
-    }
+    elt.textContent = "Merci de fournir une addresse valide.";
+    return;
   }
+
+  elt.textContent = null;
 }
 
 // ==========================================================
@@ -425,15 +449,22 @@ function onAddressChange(event)
 // ==========================================================
 function onCityChange(event)
 {
-  if (!validateName(formCity))
-  {
-    var elt = document.getElementById('cityErrorMsg');
+  console.log("onCityChange");
+  let elt = document.getElementById('cityErrorMsg');
 
-    if (elt)
-    {
-      elt.textContent = "Merci de fournir un nom de ville valide.";
-    }
+  if (!elt)
+  {
+    console.log("onCityChange error : getElementById('cityErrorMsg') = " + elt);
+    return;
   }
+
+  if (!validateCity(formCity))
+  {
+    elt.textContent = "Merci de fournir un nom de ville valide.";
+    return;
+  }
+
+  elt.textContent = null;
 }
 
 // ==========================================================
@@ -441,15 +472,21 @@ function onCityChange(event)
 // ==========================================================
 function onEmailChange(event)
 {
+  let elt = document.getElementById('emailErrorMsg');
+
+  if (!elt)
+  {
+    console.log("onEmailChange error : getElementById('emailErrorMsg') = " + elt);
+    return;
+  }
+
   if (!validateEmail(formEmail))
   {
-    var elt = document.getElementById('emailErrorMsg');
-
-    if (elt)
-    {
-      elt.textContent = "Merci de fournir una addresse Email valide.";
-    }
+    elt.textContent = "Merci de fournir una addresse Email valide.";
+    return;
   }
+
+  elt.textContent = null;
 }
 
 // ==========================================================
@@ -460,7 +497,7 @@ function checkForm()
   if (validateName(formName)      &&
       validateName(formLastName)  &&
       validateAdress(formAddress) &&
-      validateName(formCity)      &&
+      validateCity(formCity)      &&
       validateEmail(formEmail))
   {
     return true;
@@ -479,11 +516,10 @@ function onOrderClick(event)
   if (checkForm())
   {
     submitForm();
+    return;
   }
-  else
-  {
-    console.log("checkForm FAILED");
-  }
+  
+  console.log("checkForm FAILED");
 }
 
 // ==========================================================
@@ -511,7 +547,7 @@ function validateAdress(element)
 // ==========================================================
 function validateCity(element) 
 {
-  var regex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
+  var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\s,'-]*$/;
   return regex.test(element.value);
 }
 
@@ -537,10 +573,7 @@ function computeJsonBody()
 
   let productArray = [];
 
-  orderArray.forEach((item) => 
-  {
-      productArray.push(item._id);
-  })
+  orderArray.forEach((item) => {productArray.push(item._id);})
 
   return {contact: userContact, products: productArray};
 }
@@ -561,14 +594,7 @@ function goToSiteLocation(pageName)
 // ==========================================================
 async function submitForm()
 {
-  fetch(apiUrlBase + "order", {
-	            method: "POST",
-	            headers: { 
-                'Accept': 'application/json', 
-                'Content-Type': 'application/json' 
-              },
-	            body: JSON.stringify(computeJsonBody())
-            })
+  fetch(apiUrlBase + "order", {method: "POST", headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}, body: JSON.stringify(computeJsonBody())})
     .then(function(res) 
     {
       if (res.ok) 
@@ -591,13 +617,9 @@ async function submitForm()
 // ==========================================================
 function mainRun()
 {
-  loadOrderFromStorage();
+  orderArray = loadOrderFromStorage();
 
-  orderArray.forEach((item) => 
-  {
-    // Retreive product
-    apiAskForProduct(apiUrlBase + item._id, item);
-  })
+  orderArray.forEach((item) => {apiAskForProduct(apiUrlBase + item._id, item);})
 }
 
 // ==========================================================
