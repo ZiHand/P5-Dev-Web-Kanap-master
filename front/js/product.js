@@ -1,16 +1,9 @@
 // ==========================================================
-// https://stackoverflow.com/questions/43762363/how-to-store-an-array-of-objects-in-local-storage
-
-
-const apiUrlBase = "http://localhost:3000/api/products/";
-let _ID = new URL(window.location.href).searchParams.get('id');
-
-let productObj   = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
-
-let OrderProduct = {_id: "", color: "", count: 1, price: 0};
-
-let orderStorage = localStorage;
-//orderStorage.clear();
+const apiUrlBase  = "http://localhost:3000/api/products/";
+let _ID           = new URL(window.location.href).searchParams.get('id');
+let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
+let OrderProduct  = {_id: "", color: "", count: 1, price: 0};
+//localStorage.clear();
 
 // **********************************************************
 //                      Events listeners
@@ -119,7 +112,7 @@ function apiAskForProduct(url)
     .catch(function(err) 
     {
       // Une erreur est survenue
-      console.log("apiAskForProduct throw Error");
+      console.log("apiAskForProduct throw Error : " + err);
     }); 
 }
 
@@ -134,9 +127,9 @@ function WriteToDOM(obj)
   }
 
   document.getElementsByClassName('item__img')[0].innerHTML = `<img src="${obj.imageUrl}" alt="${obj.altTxt}">`;
-  document.getElementById('title').textContent = obj.name;
-  document.getElementById('price').textContent = obj.price;
-  document.getElementById('description').textContent = obj.description;
+  document.getElementById('title').textContent              = obj.name;
+  document.getElementById('price').textContent              = obj.price;
+  document.getElementById('description').textContent        = obj.description;
 
   obj.colors.forEach(color => {
     var element = document.createElement("option");
@@ -152,7 +145,6 @@ function WriteToDOM(obj)
 // ==========================================================
 async function writeProductToDOM()
 {
-    console.log(apiUrlBase + _ID);
     apiAskForProduct(apiUrlBase + _ID);   
 }
 
@@ -180,24 +172,24 @@ function addToStorage()
 
     let bFound = false;
 
-    for (var i = 0; i < orderStorage.length; i++)
+    for (var i = 0; i < localStorage.length; i++)
     {
       // Retrieve the orderObject
-      var retrievedObject = JSON.parse(orderStorage[i]);
+      var retrievedObject = JSON.parse(localStorage[i]);
 
       if (isOrderSameOf(OrderProduct, retrievedObject))
       {
         // Inc retrievedObject
         retrievedObject.count++;
         bFound = true;
-        orderStorage.setItem(i, JSON.stringify(retrievedObject));
+        localStorage.setItem(i, JSON.stringify(retrievedObject));
         break;
       }
     }
 
     if (!bFound)
     {
-      orderStorage.setItem(orderStorage.length, JSON.stringify(OrderProduct));
+      localStorage.setItem(localStorage.length, JSON.stringify(OrderProduct));
     }
 }
 

@@ -508,8 +508,6 @@ function onOrderClick(event)
 // ==========================================================
 function validateName(element) 
 {
-  // https://stackoverflow.com/questions/20690499/concrete-javascript-regex-for-accented-characters-diacritics
-
   var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{2,30}$/;
   return regex.test(element.value);
 }
