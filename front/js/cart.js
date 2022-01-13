@@ -40,6 +40,11 @@ function removeOrderFromStorage(article)
   let itemIndex       = 0;
   const storageCount  = localStorage.length; // As length will change during loop we store it to continue parsing.
 
+  if (storageCount <= 0)
+  {
+    throw "Une erreur est survenue lors de l'edition de votre panier."
+  }
+
 
   for (var i = 0; i < storageCount; i++)
   {
@@ -62,6 +67,11 @@ function removeOrderFromStorage(article)
     
     itemIndex++;
   }
+
+  if (storageCount === localStorage.length)
+  {
+    throw "Une erreur est survenue lors de l'edition de votre panier."
+  }
 }
 
 // ==========================================================
@@ -74,9 +84,14 @@ function updateOrderQuantitytoStorage(article, quantity)
 
   for (var i = 0; i <= localStorage.length - 1; i++)
   {
-    var retrievedObject = JSON.parse(localStorage[i]);
+    let retrievedObject = JSON.parse(localStorage[i]);
 
-    if (retrievedObject && retrievedObject._id === _id && retrievedObject.color === color)
+    if (!retrievedObject)
+    {
+      throw "Une erreur est survenue lors de l'edition de votre panier."
+    }
+
+    if (retrievedObject._id === _id && retrievedObject.color === color)
     {
       if (quantity >= 1)
       {
@@ -213,8 +228,9 @@ function writeOrderToArticleItems(order, product)
 // ==========================================================
 // updateCartPrice
 // ==========================================================
-function updateCartPrice()
+function updateCartPrice(article, priceNode)
 {
+  let _id           = article.getAttribute('data-id');
   let totalQuantity = document.getElementById('totalQuantity');
   let totalPrice    = document.getElementById('totalPrice');
   let articleCount  = 0;
@@ -222,7 +238,7 @@ function updateCartPrice()
 
   for (var i = 0; i <= localStorage.length - 1; i++)
   {
-    var retrievedObject = JSON.parse(localStorage[i]);
+    let retrievedObject = JSON.parse(localStorage[i]);
 
     if (retrievedObject)
     {
@@ -232,6 +248,11 @@ function updateCartPrice()
     else
     {
       console.log("updateCartPrice FAILED ! retrievedObject == null : " + localStorage[i]);
+    }
+
+    if (_id === retrievedObject._id && priceNode)
+    {
+      priceNode.textContent = (Number(retrievedObject.price) * Number(retrievedObject.count)).toString() + " €";
     }
   }
 
@@ -333,6 +354,8 @@ function onQuantityChange(event)
 {
   event.preventDefault();
 
+  let priceNode = null;
+
   if (event.currentTarget === this)
   {
     let cart__item__content__settings__quantity = event.currentTarget.parentElement;
@@ -347,13 +370,24 @@ function onQuantityChange(event)
 
         if (cart__item__content)
         {
+          let cart__item__content__description = cart__item__content.firstElementChild;
+
+          if (cart__item__content__description)
+          {
+              // Find the last "p"
+              if (cart__item__content__description.children && cart__item__content__description.children.length)
+              {
+                priceNode = cart__item__content__description.children[2];
+              }
+          }
+
           let article = cart__item__content.parentElement;
 
           if (article)
           {
             if (event.target.value <= 0 || event.target.value > 100)
             {
-              alert("Meci de saisir une valeur superireur à 0 et inférieur à 100.");
+              alert("Merci de saisir une valeur superireur à 0 et inférieur à 100.");
 
               event.target.value = event.target.defaultValue;
               return;
@@ -361,8 +395,11 @@ function onQuantityChange(event)
 
             updateOrderQuantitytoStorage(article, event.target.value);
             
+            
+            updateCartPrice(article, priceNode);
+
             // reload script
-            location.reload();
+            //location.reload();
           }
         }
       }
