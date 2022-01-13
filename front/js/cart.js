@@ -150,7 +150,7 @@ function apiAskForProduct(url, order)
       const itemQuantity = document.getElementsByClassName('itemQuantity');
       registerQuantityEvents(itemQuantity.item(itemindex - 1));
 
-      updateCartPrice();
+      updateCartPrice(null, null);
     })
     .catch(function(err) 
     {
@@ -230,7 +230,6 @@ function writeOrderToArticleItems(order, product)
 // ==========================================================
 function updateCartPrice(article, priceNode)
 {
-  let _id           = article.getAttribute('data-id');
   let totalQuantity = document.getElementById('totalQuantity');
   let totalPrice    = document.getElementById('totalPrice');
   let articleCount  = 0;
@@ -250,7 +249,7 @@ function updateCartPrice(article, priceNode)
       console.log("updateCartPrice FAILED ! retrievedObject == null : " + localStorage[i]);
     }
 
-    if (_id === retrievedObject._id && priceNode)
+    if (article && article.getAttribute('data-id') === retrievedObject._id && priceNode)
     {
       priceNode.textContent = (Number(retrievedObject.price) * Number(retrievedObject.count)).toString() + " €";
     }
