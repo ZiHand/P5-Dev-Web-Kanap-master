@@ -256,12 +256,14 @@ const formCity      = document.getElementById('city');
 const formEmail     = document.getElementById('email');
 const orderBtn      = document.getElementById('order');
 
+
 formName.addEventListener('change', onNameChange);
 formLastName.addEventListener('change', onLastNameChange);
 formAddress.addEventListener('change', onAddressChange);
 formCity.addEventListener('change', onCityChange);
 formEmail.addEventListener('change', onEmailChange);
 orderBtn.addEventListener('click', onOrderClick);
+
 
 // ==========================================================
 // registerDeleteEvents
@@ -439,7 +441,6 @@ function onAddressChange(event)
 // ==========================================================
 function onCityChange(event)
 {
-  console.log("onCityChange");
   let elt = document.getElementById('cityErrorMsg');
 
   if (!elt)

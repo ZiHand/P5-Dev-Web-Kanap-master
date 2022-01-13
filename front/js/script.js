@@ -1,7 +1,7 @@
 // ==========================================================
 // Variables definitions
 // ==========================================================
-const apiUrlBase = "http://localhost:3000/api/";
+const apiUrlBase        = "http://localhost:3000/api/";
 const apiAllProductsUrl = apiUrlBase + "products";
 
 // ==========================================================
@@ -51,7 +51,7 @@ function apiAskForProducts(productsArray, url)
 
       if (!items)
       {
-        throw console.error("apiAskForProducts throw Error : getElementById('items') = " + items);
+        throw "apiAskForProducts throw Error : getElementById('items') = " + items;
       }
 
       // Create new array of strings to writ to DOM
@@ -65,7 +65,7 @@ function apiAskForProducts(productsArray, url)
     .catch(function(err) 
     {
       // Une erreur est survenue
-      console.log("apiAskForProducts throw Error : " + err);
+      console.log(err);
     });   
 }
 
@@ -79,7 +79,6 @@ function apiAskForProducts(productsArray, url)
 // ==========================================================
 function writePoductToDOM(product)
 {
-    console.log("writePoductToDOM");
     let write = `<a href="./product.html?id=${product._id}">
     <article>
       <img src="${product.imageUrl}" alt="${product.altTxt}">
@@ -106,7 +105,7 @@ async function writeProductsToDOM()
     else
     {
         // Handle errors.
-        throw console.error();
+        throw "writeProductsToDOM FAILED";
     }
 }
 
@@ -114,5 +113,13 @@ async function writeProductsToDOM()
 // ==========================================================
 // Mai run
 // ==========================================================
-writeProductsToDOM();
+try
+{
+  writeProductsToDOM();
+}
+catch(err)
+{
+  console.log(err);
+}
+
 

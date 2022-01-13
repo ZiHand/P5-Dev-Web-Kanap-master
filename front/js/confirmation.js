@@ -15,7 +15,6 @@ function retriveOrderID()
 function writeOrderToDom()
 {
     idElement.textContent = retriveOrderID();
-    console.log(retriveOrderID());
 }
 
 // ==========================================================

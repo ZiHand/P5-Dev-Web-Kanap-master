@@ -107,12 +107,14 @@ function apiAskForProduct(url)
     })
     .then(function(object)
     {
+      if (!object) throw "apiAskForProduct Failed to retreive object";
+
       WriteToDOM(object);
     })
     .catch(function(err) 
     {
       // Une erreur est survenue
-      console.log("apiAskForProduct throw Error : " + err);
+      console.log(err);
     }); 
 }
 
@@ -121,11 +123,6 @@ function apiAskForProduct(url)
 // ==========================================================
 function WriteToDOM(obj)
 {
-  if (!obj)
-  {
-    throw console.error();
-  }
-
   document.getElementsByClassName('item__img')[0].innerHTML = `<img src="${obj.imageUrl}" alt="${obj.altTxt}">`;
   document.getElementById('title').textContent              = obj.name;
   document.getElementById('price').textContent              = obj.price;
