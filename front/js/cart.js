@@ -393,12 +393,8 @@ function onQuantityChange(event)
             }
 
             updateOrderQuantitytoStorage(article, event.target.value);
-            
-            
-            updateCartPrice(article, priceNode);
 
-            // reload script
-            //location.reload();
+            updateCartPrice(article, priceNode);
           }
         }
       }
@@ -545,7 +541,7 @@ function onOrderClick(event)
 // ==========================================================
 function validateName(element) 
 {
-  var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{2,30}$/;
+  var regex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\s,'-]{2,30}$/;
   return regex.test(element.value);
 }
 

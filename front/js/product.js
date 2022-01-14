@@ -68,9 +68,11 @@ function isOrderProductValid()
   return false;
 }
 
+// ==========================================================
 // **********************************************************
 //                        API Calls
 // **********************************************************
+// ==========================================================
 
 // ==========================================================
 // apiAskForProduct
@@ -137,16 +139,6 @@ function WriteToDOM(obj)
   });
 
 }
-// ==========================================================
-// Write product into the DOM
-// ==========================================================
-async function writeProductToDOM()
-{
-    apiAskForProduct(apiUrlBase + _ID);   
-}
-
-// ==========================================================
-writeProductToDOM();
 
 // **********************************************************
 // ==========================================================
@@ -158,8 +150,6 @@ writeProductToDOM();
 
 // ==========================================================
 // addToStorage
-//
-// return value: bool
 // ==========================================================
 function addToStorage()
 {
@@ -225,7 +215,7 @@ function onOrderClick(event)
 // ==========================================================
 function onQuantityChange(event) 
 {
-    event.preventDefault();;
+    event.preventDefault();
 
     // Check validity
     if (OrderProduct && event.target.value >= 1 && event.target.value <= 100)
@@ -236,6 +226,7 @@ function onQuantityChange(event)
 
     alert("Meci de saisir une valeur superireur à 0 et inférieur à 100.");
 
+    // Return to default
     quantityCtrl.value = 1;
 }
 
@@ -258,6 +249,16 @@ function onColorChange(event)
 
 // ==========================================================
 
+// ==========================================================
+// Write product to  DOM
+// ==========================================================
+async function writeProductToDOM()
+{
+    apiAskForProduct(apiUrlBase + _ID);   
+}
+
+// ==========================================================
+writeProductToDOM();
 
 
 

@@ -54,7 +54,7 @@ function apiAskForProducts(productsArray, url)
         throw "apiAskForProducts throw Error : getElementById('items') = " + items;
       }
 
-      // Create new array of strings to writ to DOM
+      // Create new array of strings to write to DOM
       const theseProducts = array.map(function(element)
       {
           return writePoductToDOM(element);
