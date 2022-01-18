@@ -12,7 +12,12 @@ function retriveOrderID()
         throw "retriveOrderID : url is invalid.";
     }
 
-    return url.searchParams.get("Id");
+    if (url.searchParams.has("Id"))
+    {
+        return url.searchParams.get("Id");
+    }
+    
+    return "";
 }
 
 // ==========================================================

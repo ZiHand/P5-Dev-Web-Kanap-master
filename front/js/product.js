@@ -3,7 +3,6 @@ const apiUrlBase  = "http://localhost:3000/api/products/";
 let _ID           = new URL(window.location.href).searchParams.get('id');
 let productObj    = {colors: [], _id: "", name: "", price: 0, imageUrl: "", description : "", altTxt: ""};
 let OrderProduct  = {_id: "", color: "", count: 1, price: 0};
-//localStorage.clear();
 
 // **********************************************************
 //                      Events listeners
@@ -125,6 +124,12 @@ function apiAskForProduct(url)
 // ==========================================================
 function WriteToDOM(obj)
 {
+  // The innerText property sets or returns the text content of the specified node, and all its descendants.
+  // If you set the innerText property, any child nodes are removed and replaced by a single Text node containing the specified string.
+  // Note: This property is similar to the textContent property, however there are some differences:
+  // textContent returns the text content of all elements, while innerText returns the content of all elements, except for <script> and <style> elements.
+  // innerText will not return the text of elements that are hidden with CSS (textContent will).
+
   document.getElementsByClassName('item__img')[0].innerHTML = `<img src="${obj.imageUrl}" alt="${obj.altTxt}">`;
   document.getElementById('title').textContent              = obj.name;
   document.getElementById('price').textContent              = obj.price;
